@@ -1,11 +1,35 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Timer from "../components/Timer.astro";
+import Task from "../components/task/Task.astro";
+import Cards from "../components/statistics/Cards.astro";
 ---
 
 <Layout>
-	<Welcome />
+  <Header />
+  <main class="grid grid-cols-1 lg:grid-cols-5 gap-6 p-6 min-h-screen">
+    <!-- Timer Section -->
+    <section class="lg:col-span-3 border border-gray-500 rounded-lg p-6">
+      <h2 class="text-xl font-semibold mb-4">Pomodoro Timer</h2>
+      <Timer />
+    </section>
+
+    <!-- Tasks Section -->
+    <section class="lg:col-span-2 rounded-lg p-6 border border-gray-500">
+      <h2 class="text-xl font-semibold mb-4">Tasks List</h2>
+      <Task />
+    </section>
+
+    <!-- Estatistics Section-->
+    <section class="lg:col-span-3 rounded-lg p-6 border border-gray-500">
+      <h2 class="text-xl font-semibold mb-4">Daily Statistics</h2>
+      <Cards />
+    </section>
+
+    <!-- History Section -->
+    <section class="lg:col-span-2 rounded-lg p-6 border border-gray-500">
+      <h2 class="text-xl font-semibold mb-4">History</h2>
+    </section>
+  </main>
 </Layout>
