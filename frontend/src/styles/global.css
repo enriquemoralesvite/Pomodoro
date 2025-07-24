@@ -39,3 +39,18 @@ body {
     line-height: 1.5;
   }
 }
+
+button {
+  cursor: pointer;
+}
+
+@layer utilities {
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    @apply appearance-none;
+  }
+}
+
+.formOpen {
+  @apply bg-white/50  rounded-b-none;
+}
