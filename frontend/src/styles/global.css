@@ -44,15 +44,30 @@ body {
 /* Font Faces */
 
 @font-face {
-  font-family: 'work-sans';
-  src: url('../assets/fonts/WorkSans-VariableFont_wght.ttf') format('truetype');
+  font-family: "work-sans";
+  src: url("../assets/fonts/WorkSans-VariableFont_wght.ttf") format("truetype");
   font-weight: 100 900;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'work-sans';
-  src: url('../assets/fonts/WorkSans-Italic-VariableFont_wght.ttf') format('truetype');
+  font-family: "work-sans";
+  src: url("../assets/fonts/WorkSans-Italic-VariableFont_wght.ttf")
+    format("truetype");
   font-weight: 100 900;
   font-style: italic;
+}
+button {
+  cursor: pointer;
+}
+
+@layer utilities {
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    @apply appearance-none;
+  }
+}
+
+.formOpen {
+  @apply bg-white/50  rounded-b-none;
 }
