@@ -1,12 +1,15 @@
 ---
 import FormTask from "./FormTask.astro";
+import TaskItem from "./TaskItem.astro";
+
+import { Icon } from "astro-icon/components";
 ---
 
 <!-- Task component -->
 <div class="bg-white/30 p-3 rounded-2xl">
   <!-- Search input -->
-  <div class="bg-white/60 rounded-lg px-2 py-1">
-    🔎
+  <div class="bg-white/70 rounded-lg px-2 py-1 flex items-center gap-1">
+    <Icon name="search" class="text-black/50" />
     <input
       type="text"
       placeholder="Search Tasks"
@@ -17,27 +20,20 @@ import FormTask from "./FormTask.astro";
   <!-- Add Task Form  -->
   <div class="flex cursor-pointer rounded-lg">
     <div
-      class="flex flex-1 justify-between px-2 py-1 mt-3 cursor-pointer hover:bg-white/20 rounded-lg"
+      class="flex flex-1 justify-between px-2 py-1 mt-3 cursor-pointer hover:bg-white/30 rounded-lg"
       id="btn-add-task"
     >
       <p>Add Task</p>
-      <button class="text-lg">+</button>
+      <button class="text-lg"><Icon name="add" /></button>
     </div>
   </div>
 
   <FormTask />
-
-  <!-- Tasks list -->
-  <div class="flex justify-between px-2 py-4">
-    <div>
-      <input type="checkbox" name="task-check" id="" class="" />
-      <span>Tarea 1</span>
-    </div>
-    <div>
-      <!-- Acciones -->
-      <button class=""> 🖋️ </button>
-      <button class="">🩻</button>
-    </div>
+  <div class="flex flex-col gap-2">
+    <TaskItem />
+    <TaskItem />
+    <TaskItem />
+    <TaskItem />
   </div>
 </div>
 

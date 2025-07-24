@@ -71,3 +71,8 @@ button {
 .formOpen {
   @apply bg-white/50  rounded-b-none;
 }
+
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+}
