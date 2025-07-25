@@ -1,1 +1,54 @@
 <!-- Form to add Task -->
+<div
+  id="form-task-container"
+  class="invisible h-0 bg-white/50 rounded-b-lg mb-3"
+>
+  <form class="flex flex-col px-3 py-2 gap-4" id="add-task-form">
+    <input
+      type="text"
+      placeholder="Task Description"
+      class="outline-none border-b border-b-black/50 text-black/70 text-sm px-2 py-1 pt-2"
+    />
+    <input
+      type="number"
+      placeholder="Minutes"
+      class="outline-none border-b border-b-black/50 px-2 py-1 text-black/70 text-sm"
+    />
+    <!-- <span class="text-black/70 text-sm text-center ">min</span> -->
+    <div class="flex justify-center gap-10 py-2 flex-wrap">
+      <button
+        type="button"
+        id="btn-add-task"
+        class="px-3 py-1 bg-black/80 text-white rounded-xl flex-1"
+        >Agregar</button
+      >
+      <button
+        type="button"
+        id="btn-cancel-task"
+        class="px-3 py-1 border border-black/80 text-black/80 rounded-xl flex-1"
+        >Cancelar</button
+      >
+    </div>
+  </form>
+</div>
+
+<script>
+  const btnAddTask = document.getElementById("btn-add-task");
+  const btnCancelTask = document.getElementById("btn-cancel-task");
+  const formTaskContainer = document.getElementById("form-task-container");
+  const form = document.getElementById("add-task-form");
+
+  // Cancel Button
+  btnCancelTask.addEventListener("click", () => {
+    formTaskContainer.classList.toggle("invisible");
+    formTaskContainer.classList.toggle("h-0");
+    form.reset();
+  });
+
+  // Add tasks
+  btnAddTask.addEventListener("click", addTask);
+
+  function addTask() {
+    console.log("add");
+  }
+</script>

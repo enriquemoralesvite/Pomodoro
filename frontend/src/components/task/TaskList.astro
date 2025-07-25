@@ -1,0 +1,49 @@
+---
+import FormTask from "./FormTask.astro";
+import TaskItem from "./TaskItem.astro";
+
+import { Icon } from "astro-icon/components";
+---
+
+<!-- Task component -->
+<div class="bg-white/30 p-3 rounded-2xl">
+  <!-- Search input -->
+  <div class="bg-white/70 rounded-lg px-2 py-1 flex items-center gap-1">
+    <Icon name="search" class="text-black/50" />
+    <input
+      type="text"
+      placeholder="Search Tasks"
+      class="outline-none caret-black/50"
+    />
+  </div>
+
+  <!-- Add Task Form  -->
+  <div class="flex cursor-pointer rounded-lg">
+    <div
+      class="flex flex-1 justify-between px-2 py-1 mt-3 cursor-pointer hover:bg-white/30 rounded-lg"
+      id="btn-add-task"
+    >
+      <p>Add Task</p>
+      <button class="text-lg"><Icon name="add" /></button>
+    </div>
+  </div>
+
+  <FormTask />
+  <div class="flex flex-col gap-2">
+    <TaskItem />
+    <TaskItem />
+    <TaskItem />
+    <TaskItem />
+  </div>
+</div>
+
+<script>
+  const btnAddTask = document.getElementById("btn-add-task");
+  const container = document.getElementById("form-task-container");
+
+  btnAddTask.addEventListener("click", () => {
+    container.classList.toggle("invisible");
+    container.classList.toggle("h-0");
+    btnAddTask.classList.toggle("formOpen");
+  });
+</script>
