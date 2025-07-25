@@ -1,35 +1,35 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Header from "../components/Header.astro";
-import Timer from "../components/Timer.astro";
+import TimerClient from "../components/timer/TimerClient.astro";
 import TaskList from "../components/task/TaskList.astro";
 import Cards from "../components/statistics/Cards.astro";
 ---
 
 <Layout>
   <Header />
-  <main class="grid grid-cols-1 lg:grid-cols-5 gap-6 p-6 min-h-screen">
+  <main class="grid min-h-screen grid-cols-1 gap-6 p-6 lg:grid-cols-5">
     <!-- Timer Section -->
-    <section class="lg:col-span-3 border border-gray-500 rounded-lg p-6">
-      <!-- <h2 class="text-xl font-semibold mb-4">Pomodoro Timer</h2> -->
-      <Timer />
+    <section class="p-6 rounded-lg shadow-lg lg:col-span-3 bg-gray-400/10 backdrop-blur-xl">
+      <!-- <h2 class="mb-4 text-xl font-semibold">Pomodoro Timer</h2> -->
+      <TimerClient client:load />
     </section>
 
     <!-- Tasks Section -->
-    <section class="lg:col-span-2 rounded-lg p-6 border border-gray-500">
-      <h2 class="text-xl font-semibold mb-4">Tasks List</h2>
+    <section class="p-6 border border-gray-500 rounded-lg lg:col-span-2">
+      <h2 class="mb-4 text-xl font-semibold">Tasks List</h2>
       <TaskList />
     </section>
 
     <!-- Estatistics Section-->
-    <section class="lg:col-span-3 rounded-lg p-6 border border-gray-500">
-      <h2 class="text-xl font-semibold mb-4">Daily Statistics</h2>
+    <section class="p-6 border border-gray-500 rounded-lg lg:col-span-3">
+      <h2 class="mb-4 text-xl font-semibold">Daily Statistics</h2>
       <Cards />
     </section>
 
     <!-- History Section -->
-    <section class="lg:col-span-2 rounded-lg p-6 border border-gray-500">
-      <h2 class="text-xl font-semibold mb-4">History</h2>
+    <section class="p-6 border border-gray-500 rounded-lg lg:col-span-2">
+      <h2 class="mb-4 text-xl font-semibold">History</h2>
     </section>
   </main>
 </Layout>
