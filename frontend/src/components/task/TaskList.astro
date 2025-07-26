@@ -6,9 +6,9 @@ import { Icon } from "astro-icon/components";
 ---
 
 <!-- Task component -->
-<div class="bg-white/30 p-3 rounded-2xl">
+<div class="p-3 bg-white/30 rounded-2xl">
   <!-- Search input -->
-  <div class="bg-white/70 rounded-lg px-2 py-1 flex items-center gap-1">
+  <div class="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/70">
     <Icon name="search" class="text-black/50" />
     <input
       type="text"
@@ -18,9 +18,9 @@ import { Icon } from "astro-icon/components";
   </div>
 
   <!-- Add Task Form  -->
-  <div class="flex cursor-pointer rounded-lg">
+  <div class="flex rounded-lg cursor-pointer">
     <div
-      class="flex flex-1 justify-between px-2 py-1 mt-3 cursor-pointer hover:bg-white/30 rounded-lg"
+      class="flex justify-between flex-1 px-2 py-1 mt-3 rounded-lg cursor-pointer hover:bg-white/30"
       id="btn-add-task"
     >
       <p>Add Task</p>
@@ -37,7 +37,7 @@ import { Icon } from "astro-icon/components";
   </div>
 </div>
 
-<script>
+<script type="module">
   const btnAddTask = document.getElementById("btn-add-task");
   const container = document.getElementById("form-task-container");
 
