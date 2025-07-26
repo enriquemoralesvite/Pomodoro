@@ -3,6 +3,24 @@ import FormTask from "./FormTask.astro";
 import TaskItem from "./TaskItem.astro";
 
 import { Icon } from "astro-icon/components";
+
+let tasks = [
+  { id: 1, title: "tarea1", duration: 40 },
+  { id: 2, title: "tarea2", duration: 40 },
+];
+// try {
+//   const response = await fetch("http://localhost:3000/api/tasks");
+//   if (response.ok) {
+//     tasks = await response.json();
+//   }
+// } catch (error) {
+//   console.error("No se puede conectar al backend.");
+//   if (error instanceof Error) {
+//     console.error(error.message);
+//   } else {
+//     console.error("Ocurrio un error desconocido.", error);
+//   }
+// }
 ---
 
 <!-- Task component -->
@@ -21,7 +39,7 @@ import { Icon } from "astro-icon/components";
   <div class="flex cursor-pointer rounded-lg">
     <div
       class="flex flex-1 justify-between px-2 py-1 mt-3 cursor-pointer hover:bg-white/30 rounded-lg"
-      id="btn-add-task"
+      id="btn-open-form-task"
     >
       <p>Add Task</p>
       <button class="text-lg"><Icon name="add" /></button>
@@ -30,20 +48,23 @@ import { Icon } from "astro-icon/components";
 
   <FormTask />
   <div class="flex flex-col gap-2">
-    <TaskItem />
-    <TaskItem />
-    <TaskItem />
-    <TaskItem />
+    <ul id="task-list">
+      {
+        tasks.map(({ id, title, duration }) => (
+          <TaskItem id={id} title={title} duration={duration} />
+        ))
+      }
+    </ul>
   </div>
 </div>
 
 <script>
-  const btnAddTask = document.getElementById("btn-add-task");
+  const btnOpenFormTask = document.getElementById("btn-open-form-task");
   const container = document.getElementById("form-task-container");
 
-  btnAddTask.addEventListener("click", () => {
+  btnOpenFormTask.addEventListener("click", () => {
     container.classList.toggle("invisible");
     container.classList.toggle("h-0");
-    btnAddTask.classList.toggle("formOpen");
+    btnOpenFormTask.classList.toggle("formOpen");
   });
 </script>
