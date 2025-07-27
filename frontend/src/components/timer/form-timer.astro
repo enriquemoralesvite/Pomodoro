@@ -1,0 +1,37 @@
+---
+import TimerClient from "./TimerClient.astro"
+---
+
+<div id="menuList" class="hidden w-full relative animate-slide-in-top mt-[-20px] shadow-lg">
+    <section class="flex flex-col gap-5 bg-gray-200/50 py-3 px-4 border border-gray-300 backdrop-blur-2xl rounded-lg">
+        <p class="text-[#4B5563] text-xs">Select the timer mode:</p>
+        <button class="border border-transparent hover:border-gray-500 rounded-sm focus:border-gray-400 focus:bg-gray-400/20">
+            <p class="font-bold">Pomodoro</p>
+            <p>25:00</p>
+        </button>
+        <button class="border border-transparent hover:border-gray-500 rounded-sm focus:border-gray-400 focus:bg-gray-400/20">
+            <p class="font-bold">Short Break</p>
+            <p>05:00</p>
+        </button>
+        <button class="border border-transparent hover:border-gray-500 rounded-sm focus:border-gray-400 focus:bg-gray-400/20">
+            <p class="font-bold">Long Break</p>
+            <p>15:00</p>
+        </button>
+    </section>
+</div>
+
+
+<script type="module">
+    const menuConfig = document.getElementById("caret-down"),
+          menuList   = document.getElementById("menuList"),
+          iconMenu   = document.getElementById("iconMenu");
+
+    console.log(menuConfig)
+    console.log(menuList)
+
+    menuConfig.addEventListener("click", () => {
+        iconMenu.classList.toggle("animate-flip-vertical")
+        menuList.classList.toggle("hidden")
+    });
+
+</script>
