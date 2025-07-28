@@ -76,3 +76,8 @@ input[type="checkbox"] {
   width: 18px;
   height: 18px;
 }
+
+.inputTitle,
+.inputDuration {
+  @apply outline-none border-b border-b-black/20 text-black/70;
+}
