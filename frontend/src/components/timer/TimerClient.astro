@@ -1,17 +1,16 @@
 ---
 import FormTimer from "./form-timer.astro"
-import { Icon } from "astro-icon/components";
+import { Icon } from 'astro-icon/components'
 ---
 
-<section class="font-[work-sans] flex items-center justify-center flex-col gap-5">
+<section class="font-[work-sans] flex items-center flex-col gap-4 lg:h-[400px]">
     <div class="flex w-full justify-center gap-2 mb-4 md:justify-between">
         <h1 id="timer-title" class="text-3xl text-[28px] font-bold">Pomodoro Timer</h1>
         <button id="caret-down" class="transition-transform duration-300 cursor-pointer">
-            <div class="flex items-center hover:bg-gray-300 py-1 px-0.5 rounded-lg">
-                <svg class="size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path fill="#3c3a3a" d="M259.1 73.5C262.1 58.7 275.2 48 290.4 48L350.2 48C365.4 48 378.5 58.7 381.5 73.5L396 143.5C410.1 149.5 423.3 157.2 435.3 166.3L503.1 143.8C517.5 139 533.3 145 540.9 158.2L570.8 210C578.4 223.2 575.7 239.8 564.3 249.9L511 297.3C511.9 304.7 512.3 312.3 512.3 320C512.3 327.7 511.8 335.3 511 342.7L564.4 390.2C575.8 400.3 578.4 417 570.9 430.1L541 481.9C533.4 495 517.6 501.1 503.2 496.3L435.4 473.8C423.3 482.9 410.1 490.5 396.1 496.6L381.7 566.5C378.6 581.4 365.5 592 350.4 592L290.6 592C275.4 592 262.3 581.3 259.3 566.5L244.9 496.6C230.8 490.6 217.7 482.9 205.6 473.8L137.5 496.3C123.1 501.1 107.3 495.1 99.7 481.9L69.8 430.1C62.2 416.9 64.9 400.3 76.3 390.2L129.7 342.7C128.8 335.3 128.4 327.7 128.4 320C128.4 312.3 128.9 304.7 129.7 297.3L76.3 249.8C64.9 239.7 62.3 223 69.8 209.9L99.7 158.1C107.3 144.9 123.1 138.9 137.5 143.7L205.3 166.2C217.4 157.1 230.6 149.5 244.6 143.4L259.1 73.5zM320.3 400C364.5 399.8 400.2 363.9 400 319.7C399.8 275.5 363.9 239.8 319.7 240C275.5 240.2 239.8 276.1 240 320.3C240.2 364.5 276.1 400.2 320.3 400z"/></svg>
-                <svg id="iconMenu" class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path fill="#3c3a3a" d="M480 224C492.9 224 504.6 231.8 509.6 243.8C514.6 255.8 511.8 269.5 502.7 278.7L342.7 438.7C330.2 451.2 309.9 451.2 297.4 438.7L137.4 278.7C128.2 269.5 125.5 255.8 130.5 243.8C135.5 231.8 147.1 224 160 224L480 224z"/></svg>
+            <div class="flex items-center justify-center hover:bg-gray-300 hover:animate-squeeze py-1 px-0.5 rounded-lg">
+                <Icon name="gear" class="size-5"/>
+                <Icon id="iconMenu" name="arrow-down" class="size-6"/>
             </div>
-            <Icon name="play" class="text-xl text-black/80" />
         </button>
     </div>
     <FormTimer />
@@ -19,17 +18,14 @@ import { Icon } from "astro-icon/components";
     <div id="timer-circle" class="flex items-center justify-center border-2 rounded-full size-52">
         <p id="timer-countdown" class="text-4xl font-medium">10:00</p>
     </div>
-    <div id="timer-controls" class="flex items-center gap-4">
-        <button id="btn-start" class="cursor-pointer w-[120px] h-[49px] border-1 p-3 rounded-xl bg-[#171212] text-[#FFFEFE] font-bold text-lg flex items-center justify-center gap-2 shadow-xl">
-            <svg class="size-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path fill="#fbfbfb" d="M187.2 100.9C174.8 94.1 159.8 94.4 147.6 101.6C135.4 108.8 128 121.9 128 136L128 504C128 518.1 135.5 531.2 147.6 538.4C159.7 545.6 174.8 545.9 187.2 539.1L523.2 355.1C536 348.1 544 334.6 544 320C544 305.4 536 291.9 523.2 284.9L187.2 100.9z"/></svg>
-            <p>Start</p>    
+    <div id="timer-controls" class="flex items-center gap-4 lg:mt-2.5">
+        <button id="btn-start" class="cursor-pointer w-[120px] h-[49px] border-1 p-3 rounded-xl bg-[#171212] hover:animate-squeeze text-[#FFFEFE] font-bold text-lg flex items-center shadow-xl">
+            <Icon id="icon-play" name="play" class="text-white size-10" />
+            <Icon id="icon-pause" name="pause" class="text-white size-7 hidden" />
+            <p id="btn-text">Start</p>    
         </button>
-        <button id="btn-pause" class="cursor-pointer border-1 border-[#C6C2C2] p-3 rounded-xl hover:animate-pop shadow-xl">
-            <svg id="icon-pause" class="size-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path fill="#fffefe" d="M176 96C149.5 96 128 117.5 128 144L128 496C128 522.5 149.5 544 176 544L240 544C266.5 544 288 522.5 288 496L288 144C288 117.5 266.5 96 240 96L176 96zM400 96C373.5 96 352 117.5 352 144L352 496C352 522.5 373.5 544 400 544L464 544C490.5 544 512 522.5 512 496L512 144C512 117.5 490.5 96 464 96L400 96z"/></svg>
-            <svg id="icon-play" class="hidden size-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path fill="#fbfbfb" d="M187.2 100.9C174.8 94.1 159.8 94.4 147.6 101.6C135.4 108.8 128 121.9 128 136L128 504C128 518.1 135.5 531.2 147.6 538.4C159.7 545.6 174.8 545.9 187.2 539.1L523.2 355.1C536 348.1 544 334.6 544 320C544 305.4 536 291.9 523.2 284.9L187.2 100.9z"/></svg>
-        </button>
-        <button id="btn-reset" class="cursor-pointer border-1 border-[#C6C2C2] p-3 rounded-xl hover:animate-pop shadow-xl">
-            <svg id="icon-reset" class="size-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path fill="#fffefe" d="M88 256L232 256C241.7 256 250.5 250.2 254.2 241.2C257.9 232.2 255.9 221.9 249 215L202.3 168.3C277.6 109.7 386.6 115 455.8 184.2C530.8 259.2 530.8 380.7 455.8 455.7C380.8 530.7 259.3 530.7 184.3 455.7C174.1 445.5 165.3 434.4 157.9 422.7C148.4 407.8 128.6 403.4 113.7 412.9C98.8 422.4 94.4 442.2 103.9 457.1C113.7 472.7 125.4 487.5 139 501C239 601 401 601 501 501C601 401 601 239 501 139C406.8 44.7 257.3 39.3 156.7 122.8L105 71C98.1 64.2 87.8 62.1 78.8 65.8C69.8 69.5 64 78.3 64 88L64 232C64 245.3 74.7 256 88 256z"/></svg>
+        <button id="btn-reset" class="cursor-pointer border-1 border-[#C6C2C2] p-3 rounded-xl hover:animate-squeeze shadow-xl">
+            <Icon id="icon-reset" name="reset" class="text-white size-6" />
         </button>
     </div>
 </section>
@@ -40,28 +36,23 @@ import { Icon } from "astro-icon/components";
           timerCountdown = document.getElementById("timer-countdown");
     
     const btnStart  = document.getElementById("btn-start"),
-          btnPause  = document.getElementById("btn-pause"),
           btnReset  = document.getElementById("btn-reset"),
+          btnText   = document.getElementById("btn-text"),
           iconPlay  = document.getElementById("icon-play"),
           iconPause = document.getElementById("icon-pause"),
           iconReset = document.getElementById("icon-reset");
 
-    const pathPause = iconPause.querySelector("path"),
-          pathReset = iconReset.querySelector("path");
     
-
+    let isPaused = true;
     let nIntervId;
-    let totalSeconds = 1 * 60; // Ejemplo 10 minutos
-    btnPause.disabled = true;
-    btnPause.classList.add("bg-gray-500");
-    btnReset.disabled = true;
+    let totalSeconds = 10 * 60; // Ejemplo 10 minutos
     btnReset.classList.add("bg-gray-500");
 
     
     const startPomodoro = () => {        
         if (!nIntervId) {
             nIntervId = setInterval(() => {
-                if (totalSeconds <= 0) {
+                if (totalSeconds < 0) {
                     clearInterval(nIntervId);
                     nIntervId = null;
                     alert("¡Pomodoro terminado!");
@@ -70,14 +61,6 @@ import { Icon } from "astro-icon/components";
                 updateDisplayTimer(totalSeconds);
                 totalSeconds--;
             }, 100);
-        btnStart.disabled = true;
-        btnStart.classList.add("bg-gray-500");
-        pathPause.setAttribute("fill", "#171212");
-        btnPause.disabled = false;
-        btnPause.classList.remove("bg-gray-500");
-        pathReset.setAttribute("fill", "#171212");
-        btnReset.disabled = false;
-        btnReset.classList.remove("bg-gray-500");
       }
     };
     
@@ -89,65 +72,51 @@ import { Icon } from "astro-icon/components";
         timerCountdown.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
 
-
-    let isPaused = false;
-    const pomodoroPaused = () => {
-        // reaunudar
-        if(isPaused){
-            startPomodoro()
-            isPaused = false;
-            iconPause.classList.toggle("hidden");
-            iconPlay.classList.toggle("hidden");
-            btnPause.classList.toggle("bg-[#171212]");
-            
-            console.log("Reanudando...");
-        } else {
-            // pausar
-            clearInterval(nIntervId);
-            nIntervId = null;
-            isPaused = true;
-            iconPause.classList.toggle("hidden");
-            iconPlay.classList.toggle("hidden");
-            btnPause.classList.toggle("bg-[#171212]");
-            
-            console.log("Pomodoro pausado...")
-        }
-    }
+    const togglePomodoro = () => {
+      if (isPaused) {
+        startPomodoro();
+        isPaused = false;
+        btnText.textContent = "Pause";
+        iconPlay.classList.toggle("hidden");
+        iconPause.classList.toggle("hidden");
+        btnStart.classList.toggle("justify-center");
+        console.log("Iniciando o reanudando...");
+      } else {
+        clearInterval(nIntervId);
+        nIntervId = null;
+        isPaused = true;
+        btnText.textContent = "Start";
+        iconPlay.classList.toggle("hidden");
+        iconPause.classList.toggle("hidden");
+        btnStart.classList.toggle("justify-center");
+        console.log("Pomodoro pausado...");
+      }
+    };
 
     const pomodoroReset = () => {
-        console.log("Reiniciando...");
-    
+
         clearInterval(nIntervId);
         nIntervId = null;
         totalSeconds = 10 * 60;
-    
-        // Reiniciar el contador visual
-        timerCountdown.textContent = "00:00";
-    
-        // Reactivar el botón de Start
-        btnStart.disabled = false;
-        btnStart.classList.replace("bg-gray-500", "bg-[#171212]");
-    
-        // Resetear el botón de Pausa
-        isPaused = false; // Resetear el estado de pausa
-        iconPause.classList.remove("hidden");
-        iconPlay.classList.add("hidden");
-        btnPause.classList.remove("bg-[#171212]");
-        btnPause.disabled = true;
-        btnPause.classList.add("bg-gray-500");
-        pathPause.setAttribute("fill", "#fbfbfb");
-    
-        // Resetear el botón de Reset
-        btnReset.disabled = true;
-        btnReset.classList.add("bg-gray-500");
-        pathReset.setAttribute("fill", "#fbfbfb");
-        
+        isPaused = true;
+
+        timerCountdown.textContent = "10:00";
+
+        // Asegurar que el ícono de "Play" esté visible y "Pause" oculto
+        iconPause.classList.add("hidden");
+        iconPlay.classList.remove("hidden");
+        btnText.textContent = "Start"
+        btnStart.classList.remove("justify-center");
+
+
+        console.log("Reiniciando...");
     };
+
+
       
     
-      
-    btnStart.addEventListener("click", startPomodoro);
-    btnPause.addEventListener("click", pomodoroPaused);
+    
+    btnStart.addEventListener("click", togglePomodoro);
     btnReset.addEventListener("click", pomodoroReset);
 
 
