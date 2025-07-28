@@ -17,36 +17,36 @@
     </style>
 </head>
 <body>
-    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-        <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Crear Cuenta</h2>
+    <div class="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
+        <h2 class="mb-6 text-3xl font-bold text-center text-gray-800">Crear Cuenta</h2>
         <form id="registerForm" class="space-y-4">
             <div>
                 <label for="name" class="block text-sm font-medium text-gray-700">Nombre Completo</label>
                 <input type="text" id="name" name="name" required
-                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                       class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             </div>
             <div>
                 <label for="email" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
                 <input type="email" id="email" name="email" required
-                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                       class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             </div>
             <div>
                 <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
                 <input type="password" id="password" name="password" required
-                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                       class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             </div>
             <button type="submit"
-                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    class="flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 Registrarse
             </button>
         </form>
-        <p class="mt-4 text-center text-sm text-gray-600">
+        <p class="mt-4 text-sm text-center text-gray-600">
             ¿Ya tienes una cuenta? <a href="/login" class="font-medium text-indigo-600 hover:text-indigo-500">Inicia Sesión</a>
         </p>
-        <div id="message" class="mt-4 text-center text-sm font-medium"></div>
+        <div id="message" class="mt-4 text-sm font-medium text-center"></div>
     </div>
 
-    <script>
+    <script type="module">
         document.getElementById('registerForm').addEventListener('submit', async (event) => {
             event.preventDefault();
 

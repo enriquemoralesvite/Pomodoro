@@ -1,38 +1,38 @@
 <!-- Form to add Task -->
 <div
   id="form-task-container"
-  class="invisible h-0 bg-white/50 rounded-b-lg mb-3"
+  class="invisible h-0 mb-3 rounded-b-lg bg-white/50"
 >
-  <form class="flex flex-col px-3 py-2 gap-4" id="add-task-form">
+  <form class="flex flex-col gap-4 px-3 py-2" id="add-task-form">
     <input
       type="text"
       placeholder="Task Description"
-      class="outline-none border-b border-b-black/50 text-black/70 text-sm px-2 py-1 pt-2"
+      class="px-2 py-1 pt-2 text-sm border-b outline-none border-b-black/50 text-black/70"
     />
     <input
       type="number"
       placeholder="Minutes"
-      class="outline-none border-b border-b-black/50 px-2 py-1 text-black/70 text-sm"
+      class="px-2 py-1 text-sm border-b outline-none border-b-black/50 text-black/70"
     />
-    <!-- <span class="text-black/70 text-sm text-center ">min</span> -->
-    <div class="flex justify-center gap-10 py-2 flex-wrap">
+    <!-- <span class="text-sm text-center text-black/70 ">min</span> -->
+    <div class="flex flex-wrap justify-center gap-10 py-2">
       <button
         type="button"
         id="btn-add-task"
-        class="px-3 py-1 bg-black/80 text-white rounded-xl flex-1"
+        class="flex-1 px-3 py-1 text-white bg-black/80 rounded-xl"
         >Agregar</button
       >
       <button
         type="button"
         id="btn-cancel-task"
-        class="px-3 py-1 border border-black/80 text-black/80 rounded-xl flex-1"
+        class="flex-1 px-3 py-1 border border-black/80 text-black/80 rounded-xl"
         >Cancelar</button
       >
     </div>
   </form>
 </div>
 
-<script>
+<script type="module">
   const btnAddTask = document.getElementById("btn-add-task");
   const btnCancelTask = document.getElementById("btn-cancel-task");
   const formTaskContainer = document.getElementById("form-task-container");

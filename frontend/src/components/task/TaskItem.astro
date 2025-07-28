@@ -5,7 +5,7 @@ const { id } = Astro.props;
 ---
 
 <div
-  class="group task-item flex justify-between px-2 pb-2 pt-2 hover:bg-white/30 rounded-lg"
+  class="flex justify-between px-2 pt-2 pb-2 rounded-lg group task-item hover:bg-white/30"
 >
   <div class="flex items-center gap-3">
     <input type="checkbox" name="task-check" id="" />
@@ -13,10 +13,10 @@ const { id } = Astro.props;
   </div>
 
   <!-- Acciones -->
-  <div class="task-actions flex gap-2 opacity-0 group-hover:opacity-100">
+  <div class="flex gap-2 opacity-0 task-actions group-hover:opacity-100">
     <button>
-      <Icon name="edit" class="text-black/80 text-xl" />
+      <Icon name="edit" class="text-xl text-black/80" />
     </button>
-    <button><Icon name="delete" class="text-black/80 text-xl" /></button>
+    <button><Icon name="delete" class="text-xl text-black/80" /></button>
   </div>
 </div>
