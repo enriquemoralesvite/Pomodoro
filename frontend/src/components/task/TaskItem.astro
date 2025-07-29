@@ -1,15 +1,20 @@
 ---
 import { Icon } from "astro-icon/components";
 
-const { id } = Astro.props;
+const { id, title, duration } = Astro.props;
 ---
 
 <div
-  class="flex justify-between px-2 pt-2 pb-2 rounded-lg group task-item hover:bg-white/30"
+  id={id}
+  class="group task-item flex justify-between px-2 pb-2 pt-2 hover:bg-white/30 rounded-lg"
 >
   <div class="flex items-center gap-3">
     <input type="checkbox" name="task-check" id="" />
-    <span>Tarea 1</span>
+    <div class="flex flex-col">
+      <span>{title} </span>
+
+      <span class="text-xs text-gray-400">{duration - 20}/{duration} min.</span>
+    </div>
   </div>
 
   <!-- Acciones -->
