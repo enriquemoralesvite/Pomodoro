@@ -1,4 +1,5 @@
 ---
+import { timerMinutes } from "../../signals/timer.js"
 import FormTimer from "./form-timer.astro"
 import { Icon } from 'astro-icon/components'
 ---
@@ -16,7 +17,7 @@ import { Icon } from 'astro-icon/components'
     <FormTimer />
     <h2 id="timer-task" class="text-[#171212] font-medium text-base">Grocery Shopping</h2>
     <div id="timer-circle" class="flex items-center justify-center border-2 rounded-full size-52">
-        <p id="timer-countdown" class="text-4xl font-medium">10:00</p>
+        <p id="timer-countdown" class="text-4xl font-medium">25:00</p>
     </div>
     <div id="timer-controls" class="flex items-center gap-4 lg:mt-2.5">
         <button id="btn-start" class="cursor-pointer w-[120px] h-[49px] border-1 p-3 rounded-xl bg-[#171212] hover:animate-squeeze text-[#FFFEFE] font-bold text-lg flex items-center shadow-xl">
