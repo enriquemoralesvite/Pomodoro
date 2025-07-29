@@ -1,10 +1,27 @@
+import { deleteTask, editTask } from "./tasksApi";
+
 export function createTask(task) {
   const { id, title, duration } = task;
   const li = document.createElement("li");
   li.id = id;
+
+  li.dataset.id = id;
+  li.dataset.title = title;
+  li.dataset.duration = duration;
+
   li.className =
     "group task-item flex justify-between px-2 pb-2 pt-2 hover:bg-white/30 rounded-lg gap-2";
-  li.innerHTML = `
+  li.innerHTML = getTaskHtml(title, duration);
+  bindSaveTaskAction(li);
+  bindEditTaskAction(li);
+  bindCancelTaskAction(li);
+  bindDeleteTaskAction(li);
+
+  return li;
+}
+
+function getTaskHtml(title, duration) {
+  return `
   <div class="flex items-center gap-3 w-full">
     <input type="checkbox" name="task-check" />
     <div class="flex flex-col w-full">
@@ -34,56 +51,91 @@ export function createTask(task) {
     </button>
   </div>
     `;
+}
 
-  const taskTitle = li.querySelector(".taskTitle");
-  const taskDuration = li.querySelector(".taskDuration");
+function bindSaveTaskAction(element) {
+  const { btnSave, inputTitle, inputDuration, taskTitle, taskDuration } =
+    getElements(element);
 
-  const inputTitle = li.querySelector(".inputTitle");
-  const inputDuration = li.querySelector(".inputDuration");
+  btnSave.addEventListener("click", async () => {
+    const title = inputTitle.value;
+    const duration = inputDuration.value;
 
-  const btnEdit = li.querySelector(".btnEdit");
-  const btnDelete = li.querySelector(".btnDelete");
-  const btnSave = li.querySelector(".btnSave");
-  const btnCancel = li.querySelector(".btnCancel");
+    const { success, error } = await editTask(element.dataset);
+    if (success) {
+      taskTitle.innerText = title;
+      taskDuration.innerText = duration;
+      toggleElements(element);
+    } else {
+      console.log(error);
+    }
+  });
+}
 
-  function toggleElements() {
-    li.classList.toggle("bg-white/50");
-
-    [
-      taskTitle,
-      taskDuration,
-      inputTitle,
-      inputDuration,
-      btnEdit,
-      btnDelete,
-      btnSave,
-      btnCancel,
-    ].forEach((el) => el.classList.toggle("hidden"));
-  }
+//
+function bindEditTaskAction(element) {
+  const { btnEdit, inputTitle, inputDuration, taskTitle, taskDuration } =
+    getElements(element);
 
   btnEdit.addEventListener("click", () => {
     inputTitle.value = taskTitle.innerText;
     inputDuration.value = +taskDuration.innerText;
-    li.classList.toggle("bg-white/50");
-
-    toggleElements();
-
+    element.classList.toggle("bg-white/50");
+    toggleElements(element);
     inputTitle.focus();
   });
+}
 
-  btnSave.addEventListener("click", () => {
-    const title = inputTitle.value;
-    const duration = inputDuration.value;
-    // TODO: Call backend update endpoint
+function bindDeleteTaskAction(element) {
+  const btn = element.querySelector(".btnDelete");
+  btn.addEventListener("click", async () => {
+    console.log(element);
 
-    taskTitle.innerText = title;
-    taskDuration.innerText = duration;
-    toggleElements();
+    // Call backend
+    const { success, error } = await deleteTask(element.dataset);
+    if (success) {
+      element.remove();
+    } else {
+      console.log(error);
+    }
   });
+}
 
+function bindCancelTaskAction(element) {
+  const { btnCancel } = getElements(element);
   btnCancel.addEventListener("click", () => {
-    toggleElements();
+    toggleElements(element);
   });
+}
 
-  return li;
+function getElements(element) {
+  const taskTitle = element.querySelector(".taskTitle");
+  const taskDuration = element.querySelector(".taskDuration");
+
+  const inputTitle = element.querySelector(".inputTitle");
+  const inputDuration = element.querySelector(".inputDuration");
+
+  const btnEdit = element.querySelector(".btnEdit");
+  const btnDelete = element.querySelector(".btnDelete");
+  const btnSave = element.querySelector(".btnSave");
+  const btnCancel = element.querySelector(".btnCancel");
+
+  return {
+    taskTitle,
+    taskDuration,
+    inputTitle,
+    inputDuration,
+    btnEdit,
+    btnDelete,
+    btnSave,
+    btnCancel,
+  };
+}
+
+function toggleElements(element) {
+  element.classList.toggle("bg-white/50");
+
+  const elements = getElements(element);
+
+  Object.values(elements).forEach((el) => el.classList.toggle("hidden"));
 }

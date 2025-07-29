@@ -37,6 +37,7 @@
 
 <script type="module">
   import { createTask } from "/src/scripts/tasks.js";
+  import { addTask } from "/src/scripts/tasksApi.js";
 
   const btnAddTask = document.getElementById("btn-add-task");
   const btnCancelTask = document.getElementById("btn-cancel-task");
@@ -65,22 +66,14 @@
     const title = formData.get("title");
     const duration = +formData.get("duration");
 
-    const task = await addTask({ title, duration });
-    const element = createTask({ ...task, id: Date.now() });
-    document.getElementById("task-list").appendChild(element);
-    resetForm();
+    const { data, success, error } = await addTask({ title, duration });
+    if (success) {
+      const task = data;
+      const element = createTask({ ...task, id: Date.now() });
+      document.getElementById("task-list").appendChild(element);
+      resetForm();
+    } else {
+      console.log(error);
+    }
   });
-
-  async function addTask(task) {
-    console.log(task);
-    return task; // For now, just return the task object
-
-    // // Backend connection
-    // const response = await fetch("api/tasks", {
-    //   method: "POST",
-    //   body: task,
-    // });
-    // const data = await response.json();
-    // return data;
-  }
 </script>
