@@ -17,7 +17,8 @@ const authMiddleware = async (req, res, next) => {
             return res.status(401).json({ message: 'Token inválido o expirado.' });
         }
 
-        const user = await User.findById(decoded.id_usuario);
+        // FIX: Se corrige el nombre de la propiedad para que coincida con el payload del token (decoded.id en lugar de decoded.id_usuario).
+        const user = await User.findById(decoded.id);
         if (!user) {
             return res.status(404).json({ message: 'Usuario no encontrado.' });
         }
