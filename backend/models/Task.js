@@ -2,7 +2,8 @@ const db = require('../config/db');
 
 const Task = {
     async findAllByUserId(userId) {
-        const query = 'SELECT id, title, description, status, duration, is_active FROM tasks WHERE user_id = $1 ORDER BY created_at DESC';
+        // FIX: Se filtra por is_active = true para devolver solo las tareas activas, según feedback.
+        const query = 'SELECT id, title, description, status, duration, is_active FROM tasks WHERE user_id = $1 AND is_active = true ORDER BY created_at DESC';
         try {
             const { rows } = await db.query(query, [userId]);
             return rows;
@@ -90,9 +91,8 @@ const Task = {
     },
 
     async delete(taskId, userId) {
-        // En lugar de borrar, podríamos cambiar is_active a false si se quisiera un borrado lógico.
-        // Por ahora, se implementa un borrado físico como lo espera la API del frontend.
-        const query = 'DELETE FROM tasks WHERE id = $1 AND user_id = $2 RETURNING id';
+        // FIX: Se implementa el borrado lógico cambiando is_active a false, según feedback.
+        const query = 'UPDATE tasks SET is_active = false WHERE id = $1 AND user_id = $2 RETURNING id';
         try {
             const { rows } = await db.query(query, [taskId, userId]);
             return rows[0];
