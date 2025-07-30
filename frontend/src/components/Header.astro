@@ -1,3 +1,47 @@
-<div>
-  <h2>PomoTask</h2>
-</div>
+<header class="bg-pink-500 p-4 flex justify-between items-center fixed top-0 left-0 right-0 z-10">
+    <a href="/" class="text-2xl font-bold text-white">PomoTask</a>
+    <nav id="nav-menu" class="flex items-center gap-4">
+        <!-- Este contenido se generará dinámicamente -->
+    </nav>
+</header>
+
+<script is:inline>
+    const navMenu = document.getElementById('nav-menu');
+    const token = localStorage.getItem('token');
+    const userString = localStorage.getItem('user');
+
+    let user = null;
+    if (userString) {
+        try {
+            user = JSON.parse(userString);
+        } catch (e) {
+            console.error("Error al parsear los datos del usuario:", e);
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login'; // Mantenemos esto por seguridad en caso de datos corruptos
+        }
+    }
+
+    if (token && user) {
+        // Usuario logueado
+        navMenu.innerHTML = `
+            <span class="text-white">Hola, ${user.username || 'Usuario'}</span>
+            <button id="logout-button" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">Cerrar Sesión</button>
+        `;
+
+        const logoutButton = document.getElementById('logout-button');
+        if (logoutButton) {
+            logoutButton.addEventListener('click', () => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            });
+        }
+    } else {
+        // Usuario no logueado
+        navMenu.innerHTML = `
+            <a href="/login" class="text-white hover:underline">Iniciar Sesión</a>
+            <a href="/register" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Registrarse</a>
+        `;
+    }
+</script>

@@ -69,7 +69,9 @@
     const { data, success, error } = await addTask({ title, duration });
     if (success) {
       const task = data;
-      const element = createTask({ ...task, id: Date.now() });
+      // FIX: Se pasa el objeto `task` completo (que incluye el ID real de la base de datos) a la función de creación.
+      // Antes se generaba un ID temporal con `Date.now()`, lo que impedía editar o borrar la tarea recién creada.
+      const element = createTask(task);
       document.getElementById("task-list").appendChild(element);
       resetForm();
     } else {
