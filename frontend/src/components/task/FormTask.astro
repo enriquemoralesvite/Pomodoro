@@ -6,18 +6,21 @@
   <form class="flex flex-col gap-4 px-3 py-2" id="add-task-form">
     <input
       type="text"
-      placeholder="Task Description"
-      class="px-2 py-1 pt-2 text-sm border-b outline-none border-b-black/50 text-black/70"
+      name="title"
+      placeholder="Task Title"
+      required
+      class="outline-none border-b border-b-black/50 text-black/70 text-sm px-2 py-1 pt-2"
     />
     <input
       type="number"
+      name="duration"
       placeholder="Minutes"
-      class="px-2 py-1 text-sm border-b outline-none border-b-black/50 text-black/70"
+      required
+      class="outline-none border-b border-b-black/50 px-2 py-1 text-black/70 text-sm"
     />
-    <!-- <span class="text-sm text-center text-black/70 ">min</span> -->
-    <div class="flex flex-wrap justify-center gap-10 py-2">
+    <div class="flex justify-center gap-10 py-2 flex-wrap">
       <button
-        type="button"
+        type="submit"
         id="btn-add-task"
         class="flex-1 px-3 py-1 text-white bg-black/80 rounded-xl"
         >Agregar</button
@@ -33,22 +36,44 @@
 </div>
 
 <script type="module">
+  import { createTask } from "/src/scripts/tasks.js";
+  import { addTask } from "/src/scripts/tasksApi.js";
+
   const btnAddTask = document.getElementById("btn-add-task");
   const btnCancelTask = document.getElementById("btn-cancel-task");
   const formTaskContainer = document.getElementById("form-task-container");
   const form = document.getElementById("add-task-form");
+  const btnOpenFormTask = document.getElementById("btn-open-form-task");
+
+  function resetForm() {
+    formTaskContainer.classList.toggle("invisible");
+    formTaskContainer.classList.toggle("h-0");
+    btnOpenFormTask.classList.toggle("formOpen");
+    form.reset();
+  }
 
   // Cancel Button
   btnCancelTask.addEventListener("click", () => {
-    formTaskContainer.classList.toggle("invisible");
-    formTaskContainer.classList.toggle("h-0");
-    form.reset();
+    resetForm();
   });
 
   // Add tasks
-  btnAddTask.addEventListener("click", addTask);
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  function addTask() {
-    console.log("add");
-  }
+    //Get form values.
+    const formData = new FormData(form);
+    const title = formData.get("title");
+    const duration = +formData.get("duration");
+
+    const { data, success, error } = await addTask({ title, duration });
+    if (success) {
+      const task = data;
+      const element = createTask({ ...task, id: Date.now() });
+      document.getElementById("task-list").appendChild(element);
+      resetForm();
+    } else {
+      console.log(error);
+    }
+  });
 </script>
