@@ -61,7 +61,9 @@ function bindSaveTaskAction(element) {
     const title = inputTitle.value;
     const duration = inputDuration.value;
 
-    const { success, error } = await editTask(element.dataset);
+    // FIX: Se pasa el ID por separado y los datos de la tarea en un objeto, como espera la API.
+    // Antes se pasaba el objeto `element.dataset` completo, lo que causaba un error.
+    const { success, error } = await editTask(element.dataset.id, { title, duration });
     if (success) {
       taskTitle.innerText = title;
       taskDuration.innerText = duration;
@@ -92,7 +94,9 @@ function bindDeleteTaskAction(element) {
     console.log(element);
 
     // Call backend
-    const { success, error } = await deleteTask(element.dataset);
+    // FIX: Se pasa solo el ID de la tarea, como espera la API.
+    // Antes se pasaba el objeto `element.dataset` completo, lo que causaba un error.
+    const { success, error } = await deleteTask(element.dataset.id);
     if (success) {
       element.remove();
     } else {

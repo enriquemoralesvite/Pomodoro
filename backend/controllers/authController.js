@@ -1,89 +1,84 @@
-//Logica de rutas
-
-const User = require('../models/User'); // Importar el modelo de usuario
-const { comparePassword } = require('../utils/hash'); // Importar la función de comparación de contraseñas
-const { generateToken } = require('../utils/jwt'); // Importar la función de generación de token
-const { validatePassword, validateEmail } = require('../utils/validations'); // Importar las funciones de validación de contraseña y email
+const User = require('../models/User');
+const { comparePassword } = require('../utils/hash');
+const { generateToken } = require('../utils/jwt');
+const { validatePassword, validateEmail } = require('../utils/validations');
 
 const register = async (req, res) => {
-    const { Nombres, Email, Contrasena } = req.body; // Desestructuración del objeto user
-    if (!Nombres || !Email || !Contrasena) { // Validar que los campos no estén vacíos
-        return res.status(400).json({ message: 'Todos los campos son obligatorios' }); // 400 -> significa Bad Request
+    const { username, email, password } = req.body;
+    if (!username || !email || !password) {
+        return res.status(400).json({ message: 'Todos los campos son obligatorios' });
     }
-    if (!validateEmail(Email)) { // Validar el formato del email
+    if (!validateEmail(email)) {
         return res.status(400).json({ message: 'El correo electronico no es valido' });
     }
-    if (!validatePassword(Contrasena)) { // Validar el formato de la contraseña
+    if (!validatePassword(password)) {
         return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres, una mayuscula, una minuscula, un numero y un caracter especial' });
     }
     try {
+        const newUser = await User.create({ username, email, password });
 
-        const newUser = await User.create({ Nombres, Email, Contrasena }); // Crear el usuario en la base de datos
-
-        const tokenPayload = { id_usuario: newUser.id_usuario, email: newUser.email }; // Crear el payload del token
-        const token = generateToken(tokenPayload); // Generar el token
+        const tokenPayload = { id: newUser.id, email: newUser.email };
+        const token = generateToken(tokenPayload);
 
         res.status(201).json({ 
-            message: 'Usuario creado correctamente', // 201 -> significa Created
-            token, // Retornar el token
+            message: 'Usuario creado correctamente',
+            token,
             user: {
-                id: newUser.id_usuario, 
-                nombres: newUser.nombres, 
+                id: newUser.id, 
+                username: newUser.username, 
                 email: newUser.email
             }
         });
 
     } catch (error) {
-        if (error.message === 'El correo electronico ya está registrado') { // Manejo de errores
-            return res.status(409).json({ message: error.message }); // 409 -> significa Conflict
+        if (error.message.includes('ya está registrado')) {
+            return res.status(409).json({ message: error.message });
         }
-        console.error('Error en el registro', error); // Manejo de errores
-        res.status(500).json({ message: 'Error interno del servidor' }); // 500 -> significa Internal Server Error
+        console.error('Error en el registro', error);
+        res.status(500).json({ message: 'Error interno del servidor' });
     }
 };
 
 const login = async (req, res) => {
-    const { Email, Contrasena } = req.body; // Desestructuración del objeto user
+    const { email, password } = req.body;
 
-    if (!Email || !Contrasena) { // Validar que los campos no estén vacíos
-        return res.status(400).json({ message: 'Correo electronico y contraseña son obligatorios' }); // 400 -> significa Bad Request
+    if (!email || !password) {
+        return res.status(400).json({ message: 'Correo electronico y contraseña son obligatorios' });
     }
-    if (!validateEmail(Email)) { // Validar el formato del email
+    if (!validateEmail(email)) {
         return res.status(400).json({ message: 'El formato de correo electronico no es valido' });
     }
 
     try {
-        const user = await User.findByEmail(Email); // Buscar el usuario por email
-        if (!user) { // Si no se encuentra el usuario
-            return res.status(401).json({ message: 'Credenciales no validas' }); // 401 -> significa Unauthorized
+        const user = await User.findByEmail(email);
+        if (!user) {
+            return res.status(401).json({ message: 'Credenciales no validas' });
         }
 
-        const isMatch = await comparePassword(Contrasena, user.contrasena); // Comparar la contraseña
-        if (!isMatch) { // Si la contraseña no coincide
-            return res.status(401).json({ message: 'Credenciales no validas' }); // 401 -> significa Unauthorized
+        const isMatch = await comparePassword(password, user.password_hash);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Credenciales no validas' });
         }
 
-        await User.updateLastSession(user.id_usuario); // Actualizar la última sesión
+        // La funcionalidad de 'updateLastSession' fue omitida del modelo porque la columna no existe.
 
-        const tokenPayload = { id_usuario: user.id_usuario, email: user.email }; // Crear el payload del token
-        const token = generateToken(tokenPayload); // Generar el token
+        const tokenPayload = { id: user.id, email: user.email };
+        const token = generateToken(tokenPayload);
 
-        res.status(200).json({ // 200 -> significa OK
+        res.status(200).json({
             message: 'Inicio de sesión exitoso',
-            token, // Retornar el token
+            token,
             user: {
-                id: user.id_usuario, 
-                nombres: user.nombres, 
+                id: user.id, 
+                username: user.username, 
                 email: user.email
             }
-
         });
 
     } catch (error) {
-        console.error('Error en el login', error); // Manejo de errores
-        res.status(500).json({ message: 'Error interno del servidor' }); // 500 -> significa Internal Server Error
+        console.error('Error en el login', error);
+        res.status(500).json({ message: 'Error interno del servidor' });
     }
-    
 };
 
-module.exports = {register, login}; // Exportar las funciones de registro e inicio de sesión
+module.exports = {register, login};

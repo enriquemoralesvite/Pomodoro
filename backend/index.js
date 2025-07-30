@@ -2,10 +2,11 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
-const timerRoutes = require('./routes/timer');
 
 const app = express();
 const port = process.env.PORT || 3001;
+const timerRoutes = require('./routes/timer');
+const taskRoutes = require('./routes/taskRoutes');
 
 app.use(cors({
     origin: process.env.CORS_ORIGIN || '*',
@@ -22,6 +23,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', authRoutes); //Rutas de autenticacion
 app.use('/api/timer', timerRoutes); //Rutas de temporizador
+app.use('/api/tasks', taskRoutes); //Rutas de tareas
 
 //Middleware para manejar errores 404
 app.use((err, req, res, next) => {
