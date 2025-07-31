@@ -1,4 +1,5 @@
 import { deleteTask, editTask } from "./tasksApi";
+import * as dialog from "./dialog.js";
 
 export function createTask(task) {
   const { id, title, duration } = task;
@@ -63,8 +64,13 @@ function bindSaveTaskAction(element) {
 
     // FIX: Se pasa el ID por separado y los datos de la tarea en un objeto, como espera la API.
     // Antes se pasaba el objeto `element.dataset` completo, lo que causaba un error.
-    const { success, error } = await editTask(element.dataset.id, { title, duration });
+    const { success, error } = await editTask(element.dataset.id, {
+      title,
+      duration,
+    });
     if (success) {
+      element.dataset.title = title;
+      element.dataset.duration = duration;
       taskTitle.innerText = title;
       taskDuration.innerText = duration;
       toggleElements(element);
@@ -89,19 +95,27 @@ function bindEditTaskAction(element) {
 }
 
 function bindDeleteTaskAction(element) {
+  const deleteDialogId = "deleteConfirmDialog";
   const btn = element.querySelector(".btnDelete");
-  btn.addEventListener("click", async () => {
-    console.log(element);
 
-    // Call backend
-    // FIX: Se pasa solo el ID de la tarea, como espera la API.
-    // Antes se pasaba el objeto `element.dataset` completo, lo que causaba un error.
+  const deleteAction = async () => {
     const { success, error } = await deleteTask(element.dataset.id);
+
     if (success) {
       element.remove();
     } else {
       console.log(error);
     }
+  };
+
+  btn.addEventListener("click", async () => {
+    dialog.cancel(deleteDialogId);
+
+    dialog.confirm(deleteDialogId, deleteAction);
+    dialog.open(
+      deleteDialogId,
+      `¿Desea eliminar: "${element.dataset.title}" ?`
+    );
   });
 }
 
