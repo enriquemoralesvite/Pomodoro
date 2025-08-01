@@ -17,6 +17,7 @@ export function createTask(task) {
   bindEditTaskAction(li);
   bindCancelTaskAction(li);
   bindDeleteTaskAction(li);
+  bindUpdateTaskStatus(li);
 
   return li;
 }
@@ -62,7 +63,7 @@ function bindSaveTaskAction(element) {
     const title = inputTitle.value;
     const duration = inputDuration.value;
 
-    // FIX: Se pasa el ID por separado y los datos de la tarea en un objeto, como espera la API.
+    // Se pasa el ID por separado y los datos de la tarea en un objeto, como espera la API.
     // Antes se pasaba el objeto `element.dataset` completo, lo que causaba un error.
     const { success, error } = await editTask(element.dataset.id, {
       title,
@@ -126,6 +127,26 @@ function bindCancelTaskAction(element) {
   });
 }
 
+function bindUpdateTaskStatus(element) {
+  const { checkbox, taskTitle } = getElements(element);
+  const styles = ["line-through", "text-black/70"];
+  const actions = element.querySelector(".task-actions");
+
+  checkbox.addEventListener("change", async () => {
+    checkbox.disabled = true; // Bloquea el checkbox
+    if (checkbox.checked) {
+      taskTitle.classList.add(...styles);
+      actions.classList.toggle("invisible");
+      await editTask(element.dataset.id, { status: "completed" });
+    } else {
+      taskTitle.classList.remove(...styles);
+      actions.classList.toggle("invisible");
+      await editTask(element.dataset.id, { status: "pending" });
+    }
+    checkbox.disabled = false; // Desbloquea el checkbox
+  });
+}
+
 function getElements(element) {
   const taskTitle = element.querySelector(".taskTitle");
   const taskDuration = element.querySelector(".taskDuration");
@@ -138,6 +159,8 @@ function getElements(element) {
   const btnSave = element.querySelector(".btnSave");
   const btnCancel = element.querySelector(".btnCancel");
 
+  const checkbox = element.querySelector('input[name="task-check"]');
+
   return {
     taskTitle,
     taskDuration,
@@ -147,6 +170,7 @@ function getElements(element) {
     btnDelete,
     btnSave,
     btnCancel,
+    checkbox,
   };
 }
 
