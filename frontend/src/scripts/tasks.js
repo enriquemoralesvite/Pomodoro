@@ -2,13 +2,14 @@ import { deleteTask, editTask } from "./tasksApi";
 import * as dialog from "./dialog.js";
 
 export function createTask(task) {
-  const { id, title, duration } = task;
+  const { id, title, duration, status } = task;
   const li = document.createElement("li");
   li.id = id;
 
   li.dataset.id = id;
   li.dataset.title = title;
   li.dataset.duration = duration;
+  li.dataset.status = status;
 
   li.className =
     "group task-item flex justify-between px-2 pb-2 pt-2 hover:bg-white/30 rounded-lg gap-2";
@@ -131,6 +132,12 @@ function bindUpdateTaskStatus(element) {
   const { checkbox, taskTitle } = getElements(element);
   const styles = ["line-through", "text-black/70"];
   const actions = element.querySelector(".task-actions");
+
+  if (element.dataset.status === "completed") {
+    checkbox.checked = true;
+    taskTitle.classList.add(...styles);
+    actions.classList.toggle("invisible");
+  }
 
   checkbox.addEventListener("change", async () => {
     checkbox.disabled = true; // Bloquea el checkbox
