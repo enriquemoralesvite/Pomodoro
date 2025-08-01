@@ -4,10 +4,11 @@ import Header from "../components/Header.astro";
 import TimerClient from "../components/timer/TimerClient.astro";
 import TaskList from "../components/task/TaskList.astro";
 import Cards from "../components/statistics/Cards.astro";
+import ConfirmDialog from "../components/ConfirmDialog.astro";
 ---
 
 <Layout>
-  <Header /> 
+  <Header />
   <main class="grid min-h-screen grid-cols-1 gap-6 p-6 lg:grid-cols-5">
     <!-- Timer Section - -->
     <section
@@ -34,4 +35,5 @@ import Cards from "../components/statistics/Cards.astro";
       <h2 class="mb-4 text-xl font-semibold">History</h2>
     </section>
   </main>
+  <ConfirmDialog id="deleteConfirmDialog" />
 </Layout>

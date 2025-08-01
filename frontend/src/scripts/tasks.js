@@ -1,13 +1,15 @@
 import { deleteTask, editTask } from "./tasksApi";
+import * as dialog from "./dialog.js";
 
 export function createTask(task) {
-  const { id, title, duration } = task;
+  const { id, title, duration, status } = task;
   const li = document.createElement("li");
   li.id = id;
 
   li.dataset.id = id;
   li.dataset.title = title;
   li.dataset.duration = duration;
+  li.dataset.status = status;
 
   li.className =
     "group task-item flex justify-between px-2 pb-2 pt-2 hover:bg-white/30 rounded-lg gap-2";
@@ -16,6 +18,7 @@ export function createTask(task) {
   bindEditTaskAction(li);
   bindCancelTaskAction(li);
   bindDeleteTaskAction(li);
+  bindUpdateTaskStatus(li);
 
   return li;
 }
@@ -61,10 +64,15 @@ function bindSaveTaskAction(element) {
     const title = inputTitle.value;
     const duration = inputDuration.value;
 
-    // FIX: Se pasa el ID por separado y los datos de la tarea en un objeto, como espera la API.
+    // Se pasa el ID por separado y los datos de la tarea en un objeto, como espera la API.
     // Antes se pasaba el objeto `element.dataset` completo, lo que causaba un error.
-    const { success, error } = await editTask(element.dataset.id, { title, duration });
+    const { success, error } = await editTask(element.dataset.id, {
+      title,
+      duration,
+    });
     if (success) {
+      element.dataset.title = title;
+      element.dataset.duration = duration;
       taskTitle.innerText = title;
       taskDuration.innerText = duration;
       toggleElements(element);
@@ -89,19 +97,27 @@ function bindEditTaskAction(element) {
 }
 
 function bindDeleteTaskAction(element) {
+  const deleteDialogId = "deleteConfirmDialog";
   const btn = element.querySelector(".btnDelete");
-  btn.addEventListener("click", async () => {
-    console.log(element);
 
-    // Call backend
-    // FIX: Se pasa solo el ID de la tarea, como espera la API.
-    // Antes se pasaba el objeto `element.dataset` completo, lo que causaba un error.
+  const deleteAction = async () => {
     const { success, error } = await deleteTask(element.dataset.id);
+
     if (success) {
       element.remove();
     } else {
       console.log(error);
     }
+  };
+
+  btn.addEventListener("click", async () => {
+    dialog.cancel(deleteDialogId);
+
+    dialog.confirm(deleteDialogId, deleteAction);
+    dialog.open(
+      deleteDialogId,
+      `¿Desea eliminar: "${element.dataset.title}" ?`
+    );
   });
 }
 
@@ -109,6 +125,32 @@ function bindCancelTaskAction(element) {
   const { btnCancel } = getElements(element);
   btnCancel.addEventListener("click", () => {
     toggleElements(element);
+  });
+}
+
+function bindUpdateTaskStatus(element) {
+  const { checkbox, taskTitle } = getElements(element);
+  const styles = ["line-through", "text-gray-500", "italic"];
+  const actions = element.querySelector(".task-actions");
+
+  if (element.dataset.status === "completed") {
+    checkbox.checked = true;
+    taskTitle.classList.add(...styles);
+    actions.classList.toggle("invisible");
+  }
+
+  checkbox.addEventListener("change", async () => {
+    checkbox.disabled = true; // Bloquea el checkbox
+    if (checkbox.checked) {
+      taskTitle.classList.add(...styles);
+      actions.classList.toggle("invisible");
+      await editTask(element.dataset.id, { status: "completed" });
+    } else {
+      taskTitle.classList.remove(...styles);
+      actions.classList.toggle("invisible");
+      await editTask(element.dataset.id, { status: "pending" });
+    }
+    checkbox.disabled = false; // Desbloquea el checkbox
   });
 }
 
@@ -124,6 +166,8 @@ function getElements(element) {
   const btnSave = element.querySelector(".btnSave");
   const btnCancel = element.querySelector(".btnCancel");
 
+  const checkbox = element.querySelector('input[name="task-check"]');
+
   return {
     taskTitle,
     taskDuration,
@@ -133,6 +177,7 @@ function getElements(element) {
     btnDelete,
     btnSave,
     btnCancel,
+    checkbox,
   };
 }
 
