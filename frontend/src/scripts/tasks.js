@@ -130,7 +130,7 @@ function bindCancelTaskAction(element) {
 
 function bindUpdateTaskStatus(element) {
   const { checkbox, taskTitle } = getElements(element);
-  const styles = ["line-through", "text-black/70"];
+  const styles = ["line-through", "text-gray-500", "italic"];
   const actions = element.querySelector(".task-actions");
 
   if (element.dataset.status === "completed") {
