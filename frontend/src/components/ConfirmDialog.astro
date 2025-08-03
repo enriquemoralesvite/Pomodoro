@@ -1,0 +1,29 @@
+---
+const { id, message } = Astro.props;
+---
+
+<!-- Simple pop-up dialog box, containing a form -->
+<dialog
+  id={id}
+  class="rounded-xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white shadow-lg max-w-[350px] min-w-[250px]"
+>
+  <form method="dialog" class="m-2">
+    <section class="mt-2 pt-2">
+      <p id={`${id}-message`} class="text-center">{message}</p>
+    </section>
+    <menu class="flex justify-center gap-4 p-2 m-1">
+      <button
+        type="button"
+        id={`${id}-cancel`}
+        class="rounded-xl p-2 border border-gray-500 hover:bg-gray-100 flex-1"
+        >Cancelar</button
+      >
+      <button
+        type="button"
+        id={`${id}-confirm`}
+        class="rounded-xl p-2 bg-gray-500 text-white hover:bg-gray-600 flex-1"
+        >Confirmar</button
+      >
+    </menu>
+  </form>
+</dialog>
