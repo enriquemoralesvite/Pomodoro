@@ -1,47 +1,59 @@
-<header class="bg-pink-500 p-4 flex justify-between items-center fixed top-0 left-0 right-0 z-10">
-    <a href="/" class="text-2xl font-bold text-white">PomoTask</a>
-    <nav id="nav-menu" class="flex items-center gap-4">
-        <!-- Este contenido se generará dinámicamente -->
-    </nav>
+---
+import { Icon } from "astro-icon/components";
+---
+
+<header
+  class="backdrop-blur bg-white/10 px-4 py-2 flex justify-between items-center fixed top-0 left-0 right-0 z-10"
+>
+  <a href="/" class="flex items-center text-xl font-bold text-black/70">
+    <Icon name="sandTimer" class="text-xl text-black/70" />
+
+    PomoTask
+  </a>
+  <nav id="nav-menu" class="flex items-center gap-4">
+    <!-- Este contenido se generará dinámicamente -->
+  </nav>
 </header>
 
 <script is:inline>
-    const navMenu = document.getElementById('nav-menu');
-    const token = localStorage.getItem('token');
-    const userString = localStorage.getItem('user');
+  const navMenu = document.getElementById("nav-menu");
+  const token = localStorage.getItem("token");
+  const userString = localStorage.getItem("user");
 
-    let user = null;
-    if (userString) {
-        try {
-            user = JSON.parse(userString);
-        } catch (e) {
-            console.error("Error al parsear los datos del usuario:", e);
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = '/login'; // Mantenemos esto por seguridad en caso de datos corruptos
-        }
+  let user = null;
+  if (userString) {
+    try {
+      user = JSON.parse(userString);
+    } catch (e) {
+      console.error("Error al parsear los datos del usuario:", e);
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/login"; // Mantenemos esto por seguridad en caso de datos corruptos
     }
+  }
 
-    if (token && user) {
-        // Usuario logueado
-        navMenu.innerHTML = `
-            <span class="text-white">Hola, ${user.username || 'Usuario'}</span>
-            <button id="logout-button" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">Cerrar Sesión</button>
+  if (token && user) {
+    // Usuario logueado
+    navMenu.innerHTML = `
+            <span class="text-black/70 font-semibold">Hola, ${user.username || "Usuario"}</span>
+            <button id="logout-button" class=" bg-gray-300/10 text-black/70 font-bold py-2 px-2 rounded">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" ><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" ><path d="M14 8V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2v-2"/><path d="M9 12h12l-3-3m0 6l3-3"/></g></svg>
+            </button>
         `;
 
-        const logoutButton = document.getElementById('logout-button');
-        if (logoutButton) {
-            logoutButton.addEventListener('click', () => {
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                window.location.href = '/login';
-            });
-        }
-    } else {
-        // Usuario no logueado
-        navMenu.innerHTML = `
-            <a href="/login" class="text-white hover:underline">Iniciar Sesión</a>
-            <a href="/register" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Registrarse</a>
-        `;
+    const logoutButton = document.getElementById("logout-button");
+    if (logoutButton) {
+      logoutButton.addEventListener("click", () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+      });
     }
+  } else {
+    // Usuario no logueado
+    navMenu.innerHTML = `
+            <a href="/login" class="md:text-black/70 md:hover:underline md:bg-transparent bg-[#cfa09b]/50 font-bold py-2 px-4 rounded ">Iniciar Sesión</a>
+            <a href="/register" class="hidden md:block bg-[#cfa09b]/50 hover:bg-[#cfa09b]/70 text-black/70 font-bold py-2 px-4 rounded">Registrarse</a>
+        `;
+  }
 </script>
