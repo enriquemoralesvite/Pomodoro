@@ -22,7 +22,7 @@
       <button
         type="submit"
         id="btn-add-task"
-        class="flex-1 px-3 py-1 text-white bg-black/80 rounded-xl"
+        class="flex justify-center flex-1 px-3 py-1 text-white bg-black/80 rounded-xl"
         >Agregar</button
       >
       <button
@@ -66,16 +66,26 @@
     const title = formData.get("title");
     const duration = +formData.get("duration");
 
+    btnAddTask.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="18" cy="12" r="0" 
+      fill="currentColor"><animate attributeName="r" begin=".67" calcMode="spline" dur="1.5s" keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" 
+      repeatCount="indefinite" values="0;2;0;0"/></circle><circle cx="12" cy="12" r="0" fill="currentColor"><animate attributeName="r" begin=".33" 
+      calcMode="spline" dur="1.5s" keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" repeatCount="indefinite" values="0;2;0;0"/></circle><circle 
+      cx="6" cy="12" r="0" fill="currentColor"><animate attributeName="r" begin="0" calcMode="spline" dur="1.5s" 
+      keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" repeatCount="indefinite" values="0;2;0;0"/></circle></svg>`;
+    btnAddTask.disabled = true;
+    btnCancelTask.disabled = true;
     const { data, success, error } = await addTask({ title, duration });
     if (success) {
       const task = data;
-      // FIX: Se pasa el objeto `task` completo (que incluye el ID real de la base de datos) a la función de creación.
-      // Antes se generaba un ID temporal con `Date.now()`, lo que impedía editar o borrar la tarea recién creada.
       const element = createTask(task);
       document.getElementById("task-list").appendChild(element);
       resetForm();
     } else {
       console.log(error);
     }
+
+    // btnAddTask.innerText = "Agregar";
+    btnAddTask.disabled = false;
+    btnCancelTask.disabled = false;
   });
 </script>

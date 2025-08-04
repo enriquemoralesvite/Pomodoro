@@ -88,34 +88,28 @@ input[type="checkbox"] {
 }
 
 .bg-app {
-  /* background: #ffa17f; */
+  background: #dbe6f6;
+  background: -webkit-linear-gradient(to top, #c5796d, #dbe6f6);
+  background: linear-gradient(to top, #c5796d, #dbe6f6);
+}
 
-  background: #dbe6f6; /* fallback for old browsers */
-  background: -webkit-linear-gradient(
-    to top,
-    #c5796d,
-    #dbe6f6
-  ); /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(
-    to top,
-    #c5796d,
-    #dbe6f6
-  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  background: #7c7a7a;
+}
 
-  /*Zink*/
-  /* background: #ada996;
-  background: -webkit-linear-gradient(
-    to bottom,
-    #eaeaea,
-    #dbdbdb,
-    #f2f2f2,
-    #ada996
-  );
-  background: linear-gradient(
-    to bottom,
-    #eaeaea,
-    #dbdbdb,
-    #f2f2f2,
-    #ada996
-  );  */
+::-webkit-scrollbar-thumb {
+  background: #7c7a7a;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #7c7a7a;
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #7c7a7a transparent;
 }
