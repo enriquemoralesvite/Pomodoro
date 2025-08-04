@@ -31,9 +31,7 @@ function getTaskHtml(title, duration) {
       <span class="taskTitle line-clamp-2 break-all">${title} </span>
       <input type="text" name="title" class="inputTitle hidden" />
 
-      <span class="taskDurationContainer flex text-xs text-gray-400">${
-        duration - duration / 2
-      }/<span class="taskDuration">${duration}</span>
+      <span class="taskDurationContainer flex text-xs text-gray-400">0/<span class="taskDuration">${duration}</span>
       <input type="number" name="duration" class="inputDuration hidden" /> 
       min.</span>
     </div>
