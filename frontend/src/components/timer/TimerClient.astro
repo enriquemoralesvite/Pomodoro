@@ -22,13 +22,13 @@ import { Icon } from "astro-icon/components";
   </div>
   <FormTimer />
   <h2 id="timer-task" class="text-[#171212] font-medium text-base">
-    Grocery Shopping
+    Select a session to begin
   </h2>
   <div
     id="timer-circle"
     class="flex items-center justify-center border-2 rounded-full size-45"
   >
-    <p id="timer-countdown" class="text-4xl font-medium">10:00</p>
+    <p id="timer-countdown" class="text-4xl font-medium">25:00</p>
   </div>
   <div id="timer-controls" class="flex items-center gap-4 lg:mt-2.5">
     <button
@@ -49,82 +49,117 @@ import { Icon } from "astro-icon/components";
 </section>
 
 <script type="module">
-  const timerTask = document.getElementById("timer-task"),
-    timerCircle = document.getElementById("timer-circle"),
-    timerCountdown = document.getElementById("timer-countdown");
+  import { registerSession } from "/src/scripts/timerApi.js";
 
-  const btnStart = document.getElementById("btn-start"),
-    btnReset = document.getElementById("btn-reset"),
-    btnText = document.getElementById("btn-text"),
-    iconPlay = document.getElementById("icon-play"),
-    iconPause = document.getElementById("icon-pause"),
-    iconReset = document.getElementById("icon-reset");
+  const timerTitle = document.getElementById("timer-title");
+  const timerCountdown = document.getElementById("timer-countdown");
+  const btnStart = document.getElementById("btn-start");
+  const btnReset = document.getElementById("btn-reset");
+  const btnText = document.getElementById("btn-text");
+  const iconPlay = document.getElementById("icon-play");
+  const iconPause = document.getElementById("icon-pause");
 
+  const btnPomodoro = document.getElementById("btn-pomodoro");
+  const btnShortBreak = document.getElementById("btn-short-break");
+  const btnLongBreak = document.getElementById("btn-long-break");
+
+  // NOTA: Duraciones cortas para facilitar las pruebas de desarrollo.
+  const DURATIONS = {
+    //work: 25 * 60,
+    work: 5,      // 5 segundos(probando)
+    //short_break: 5 * 60,
+    short_break: 3,   // 3 segundos(probando) 
+    //long_break: 15 * 60,
+    long_break: 4,    // 4 segundos(probando)
+  };
+
+  let currentSessionType = "work";
+  let totalSeconds = DURATIONS.work;
+  let nIntervId = null;
   let isPaused = true;
-  let nIntervId;
-  let totalSeconds = 10 * 60; // Ejemplo 10 minutos
-  btnReset.classList.add("bg-gray-500");
 
-  const startPomodoro = () => {
-    if (!nIntervId) {
-      nIntervId = setInterval(() => {
-        if (totalSeconds < 0) {
-          clearInterval(nIntervId);
-          nIntervId = null;
-          alert("¡Pomodoro terminado!");
-          return;
-        }
-        updateDisplayTimer(totalSeconds);
-        totalSeconds--;
-      }, 100);
+  function updateDisplayTimer(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    timerCountdown.textContent = `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
+  }
+
+  function setTimer(sessionType) {
+    clearInterval(nIntervId);
+    nIntervId = null;
+    isPaused = true;
+    currentSessionType = sessionType;
+    totalSeconds = DURATIONS[sessionType];
+
+    const title = sessionType.replace("_", " ").replace(/\b\w/g, l => l.toUpperCase());
+    timerTitle.textContent = title;
+    updateDisplayTimer(totalSeconds);
+    btnText.textContent = "Start";
+    iconPlay.classList.remove("hidden");
+    iconPause.classList.add("hidden");
+  }
+
+  async function handleTimerEnd() {
+    clearInterval(nIntervId);
+    nIntervId = null;
+    isPaused = true;
+
+    // Al finalizar el temporizador, se registra la sesión en el backend.
+    const sessionData = {
+      sessionType: currentSessionType,
+      duration: DURATIONS[currentSessionType],
+      userId: localStorage.getItem('userId'), // Se envía el ID del usuario.
+    };
+
+    const { success, error } = await registerSession(sessionData);
+
+    if (success) {
+      // Si la sesión se registra con éxito, se dispara un evento para actualizar las estadísticas.
+      document.dispatchEvent(new CustomEvent('stats-updated'));
+      alert(`${timerTitle.textContent} finished!`);
+    } else {
+      console.error("Error registering session:", error);
+      alert(`Error: Could not save session. Reason: ${error}`);
     }
-  };
 
-  const updateDisplayTimer = (totalSeconds) => {
-    // totalSeconds--;
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    timerCountdown.textContent = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-  };
+    setTimer(currentSessionType);
+  }
 
-  const togglePomodoro = () => {
-    if (isPaused) {
-      startPomodoro();
-      isPaused = false;
+  function startTimer() {
+    if (nIntervId) return;
+
+    nIntervId = setInterval(() => {
+      if (totalSeconds <= 0) {
+        handleTimerEnd();
+        return;
+      }
+      totalSeconds--;
+      updateDisplayTimer(totalSeconds);
+    }, 1000);
+  }
+
+  function togglePomodoro() {
+    isPaused = !isPaused;
+    if (!isPaused) {
+      startTimer();
       btnText.textContent = "Pause";
-      iconPlay.classList.toggle("hidden");
-      iconPause.classList.toggle("hidden");
-      btnStart.classList.toggle("justify-center");
-      console.log("Iniciando o reanudando...");
     } else {
       clearInterval(nIntervId);
       nIntervId = null;
-      isPaused = true;
       btnText.textContent = "Start";
-      iconPlay.classList.toggle("hidden");
-      iconPause.classList.toggle("hidden");
-      btnStart.classList.toggle("justify-center");
-      console.log("Pomodoro pausado...");
     }
-  };
+    iconPlay.classList.toggle("hidden");
+    iconPause.classList.toggle("hidden");
+  }
 
-  const pomodoroReset = () => {
-    clearInterval(nIntervId);
-    nIntervId = null;
-    totalSeconds = 10 * 60;
-    isPaused = true;
-
-    timerCountdown.textContent = "10:00";
-
-    // Asegurar que el ícono de "Play" esté visible y "Pause" oculto
-    iconPause.classList.add("hidden");
-    iconPlay.classList.remove("hidden");
-    btnText.textContent = "Start";
-    btnStart.classList.remove("justify-center");
-
-    console.log("Reiniciando...");
-  };
-
+  // Event Listeners
   btnStart.addEventListener("click", togglePomodoro);
-  btnReset.addEventListener("click", pomodoroReset);
+  btnReset.addEventListener("click", () => setTimer(currentSessionType));
+
+  btnPomodoro.addEventListener("click", () => setTimer("work"));
+  btnShortBreak.addEventListener("click", () => setTimer("short_break"));
+  btnLongBreak.addEventListener("click", () => setTimer("long_break"));
+
+  // Initial state
+  setTimer("work");
 </script>

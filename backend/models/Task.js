@@ -100,6 +100,18 @@ const Task = {
             console.error('Error al eliminar la tarea', error);
             throw error;
         }
+    },
+
+    // Se usa en el endpoint de estadísticas para la tarjeta "Tasks Completed".
+  static async countCompletedByUserId(userId) {
+        const query = "SELECT COUNT(*) FROM tasks WHERE user_id = $1 AND status = 'completed'";
+        try {
+            const { rows } = await db.query(query, [userId]);
+            return parseInt(rows[0].count, 10);
+        } catch (error) {
+            console.error('Error al contar las tareas completadas', error);
+            throw error;
+        }
     }
 };
 

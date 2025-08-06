@@ -64,6 +64,8 @@
                     messageDiv.className = 'mt-4 text-center text-sm font-medium text-green-600';
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
+                    // Se guarda el ID del usuario para poder registrar las sesiones de pomodoro asociadas a él.
+                    localStorage.setItem('userId', data.user.id);
                     window.location.href = '/';
                 } else {
                     messageDiv.textContent = data.message || 'Error al iniciar sesión.';
@@ -78,4 +80,3 @@
     </script>
 </body>
 </html>
-
