@@ -139,15 +139,25 @@ function bindUpdateTaskStatus(element) {
 
   checkbox.addEventListener("change", async () => {
     checkbox.disabled = true; // Bloquea el checkbox
+    let success = false;
     if (checkbox.checked) {
       taskTitle.classList.add(...styles);
       actions.classList.toggle("invisible");
-      await editTask(element.dataset.id, { status: "completed" });
+      const response = await editTask(element.dataset.id, { status: "completed" });
+      success = response.success;
     } else {
       taskTitle.classList.remove(...styles);
       actions.classList.toggle("invisible");
-      await editTask(element.dataset.id, { status: "pending" });
+      const response = await editTask(element.dataset.id, { status: "pending" });
+      success = response.success;
     }
+
+    if (success) {
+      // Se dispara un evento global para notificar a otros componentes (ej. estadísticas)
+      // que los datos han cambiado y necesitan refrescarse, sin acoplar los componentes.
+      document.dispatchEvent(new CustomEvent('stats-updated'));
+    }
+
     checkbox.disabled = false; // Desbloquea el checkbox
   });
 }

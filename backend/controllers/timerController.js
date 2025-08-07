@@ -1,5 +1,5 @@
-
 const { query } = require('../config/db');
+const Task = require('../models/Task'); // Importar el modelo de Tareas
 
 const registerSession = async (req, res) => {
   try {
@@ -22,10 +22,14 @@ const registerSession = async (req, res) => {
       });
     }
 
+    // NOTA: Duraciones cortas para facilitar las pruebas de desarrollo.
     const expectedDurations = {
-      work: 25 * 60,
-      short_break: 5 * 60,
-      long_break: 15 * 60
+      //work: 25 * 60,
+      work: 5, // 5 segundos (probando)
+      //short_break: 5 * 60,
+      short_break: 3, // 3 segundos (probando)
+      //long_break: 15 * 60
+      long_break: 4 // 4 segundos (probando)
     };
 
     if (duration !== expectedDurations[sessionType]) {
@@ -123,8 +127,50 @@ const getTimerConfig = (req, res) => {
   });
 };
 
+// Obtiene un resumen de todas las estadísticas para las tarjetas del dashboard.
+const getAggregatedStats = async (req, res) => {
+  try {
+    const userId = req.user.id; // El ID de usuario se obtiene del token JWT a través del middleware.
+
+    // FIX: Se cuentan solo las sesiones del día actual para las estadísticas, según feedback.
+    const countSessions = async (sessionType) => {
+      const result = await query(
+        "SELECT COUNT(*) FROM pomodoro_sessions WHERE user_id = $1 AND session_type = $2 AND created_at::date = CURRENT_DATE",
+        [userId, sessionType]
+      );
+      return parseInt(result.rows[0].count, 10);
+    };
+
+    // Se ejecutan todas las consultas de conteo en paralelo para mayor eficiencia.
+    const [pomodorosCompleted, shortBreaks, longBreaks, tasksCompleted] = await Promise.all([
+      countSessions('work'),
+      countSessions('short_break'),
+      countSessions('long_break'),
+      Task.countCompletedByUserId(userId) // Llama al nuevo método del modelo Task.
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        pomodorosCompleted,
+        shortBreaks,
+        longBreaks,
+        tasksCompleted
+      }
+    });
+
+  } catch (error) {
+    console.error('Error al obtener estadísticas agregadas:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error interno del servidor al obtener estadísticas'
+    });
+  }
+};
+
 module.exports = {
   registerSession,
   getStats,
-  getTimerConfig
+  getTimerConfig,
+  getAggregatedStats // Se exporta la nueva función
 };

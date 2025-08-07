@@ -1,6 +1,10 @@
 const User = require('../models/User');
 const { comparePassword } = require('../utils/hash');
-const { generateToken } = require('../utils/jwt');
+const {
+    generateAccessToken,
+    generateRefreshToken,
+    verifyRefreshToken
+} = require('../utils/jwt');
 const { validatePassword, validateEmail } = require('../utils/validations');
 
 const register = async (req, res) => {
@@ -18,14 +22,16 @@ const register = async (req, res) => {
         const newUser = await User.create({ username, email, password });
 
         const tokenPayload = { id: newUser.id, email: newUser.email };
-        const token = generateToken(tokenPayload);
+        const accessToken = generateAccessToken(tokenPayload);
+        const refreshToken = generateRefreshToken(tokenPayload);
 
-        res.status(201).json({ 
+        res.status(201).json({
             message: 'Usuario creado correctamente',
-            token,
+            accessToken,
+            refreshToken,
             user: {
-                id: newUser.id, 
-                username: newUser.username, 
+                id: newUser.id,
+                username: newUser.username,
                 email: newUser.email
             }
         });
@@ -60,17 +66,17 @@ const login = async (req, res) => {
             return res.status(401).json({ message: 'Credenciales no validas' });
         }
 
-        // La funcionalidad de 'updateLastSession' fue omitida del modelo porque la columna no existe.
-
         const tokenPayload = { id: user.id, email: user.email };
-        const token = generateToken(tokenPayload);
+        const accessToken = generateAccessToken(tokenPayload);
+        const refreshToken = generateRefreshToken(tokenPayload);
 
         res.status(200).json({
             message: 'Inicio de sesión exitoso',
-            token,
+            accessToken,
+            refreshToken,
             user: {
-                id: user.id, 
-                username: user.username, 
+                id: user.id,
+                username: user.username,
                 email: user.email
             }
         });
@@ -81,4 +87,23 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = {register, login};
+// Renueva un token de acceso utilizando un token de refresco válido.
+const refreshToken = async (req, res) => {
+    const { token } = req.body;
+
+    if (!token) {
+        return res.status(401).json({ message: 'No se proporcionó un token de refresco.' });
+    }
+
+    const decoded = verifyRefreshToken(token);
+    if (!decoded) {
+        return res.status(403).json({ message: 'Token de refresco inválido o expirado.' });
+    }
+
+    const tokenPayload = { id: decoded.id, email: decoded.email };
+    const newAccessToken = generateAccessToken(tokenPayload);
+
+    res.status(200).json({ accessToken: newAccessToken });
+};
+
+module.exports = { register, login, refreshToken };
