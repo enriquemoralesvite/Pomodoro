@@ -15,7 +15,8 @@ body {
   width: 100%;
   height: 100%;
   z-index: -1;
-  filter: blur(100px);
+  object-fit: cover;
+  /* filter: blur(5px); */
 }
 
 #container {
@@ -80,4 +81,35 @@ input[type="checkbox"] {
 .inputTitle,
 .inputDuration {
   @apply outline-none border-b border-b-black/20 text-black/70;
+}
+
+.waves {
+  @apply bg-white transition-all duration-1000 ease-out bg-[size:16px_16px] bg-[position:0_0,8px_8px] bg-[image:linear-gradient(45deg,#efefef_25%,rgba(239,239,239,0)_25%,rgba(239,239,239,0)_75%,#efefef_75%,#efefef),linear-gradient(45deg,#efefef_25%,rgba(239,239,239,0)_25%,rgba(239,239,239,0)_75%,#efefef_75%,#efefef)] [clip-path:polygon(0px_0px,0%_0px,0%_100%,0px_100%)];
+}
+
+.bg-app {
+  background: #dbe6f6;
+  background: -webkit-linear-gradient(to top, #c5796d, #dbe6f6);
+  background: linear-gradient(to top, #c5796d, #dbe6f6);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  background: #7c7a7a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #7c7a7a;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #7c7a7a;
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #7c7a7a transparent;
 }

@@ -1,5 +1,4 @@
 ---
-import { timerMinutes } from "../../signals/timer.js"
 import FormTimer from "./form-timer.astro"
 import { Icon } from 'astro-icon/components'
 ---
@@ -17,7 +16,7 @@ import { Icon } from 'astro-icon/components'
     <FormTimer />
     <h2 id="timer-task" class="text-[#171212] font-medium text-base">Grocery Shopping</h2>
     <div id="timer-circle" class="flex items-center justify-center border-2 rounded-full size-52">
-        <p id="timer-countdown" class="text-4xl font-medium">25:00</p>
+        <p id="timer-countdown" class="text-4xl font-medium">10:00</p>
     </div>
     <div id="timer-controls" class="flex items-center gap-4 lg:mt-2.5">
         <button id="btn-start" class="cursor-pointer w-[120px] h-[49px] border-1 p-3 rounded-xl bg-[#171212] hover:animate-squeeze text-[#FFFEFE] font-bold text-lg flex items-center shadow-xl">
@@ -32,93 +31,82 @@ import { Icon } from 'astro-icon/components'
 </section>
 
 <script type="module">
-    const timerTask      = document.getElementById("timer-task"),
-          timerCircle    = document.getElementById("timer-circle"),
-          timerCountdown = document.getElementById("timer-countdown");
-    
-    const btnStart  = document.getElementById("btn-start"),
-          btnReset  = document.getElementById("btn-reset"),
-          btnText   = document.getElementById("btn-text"),
-          iconPlay  = document.getElementById("icon-play"),
-          iconPause = document.getElementById("icon-pause"),
-          iconReset = document.getElementById("icon-reset");
+  const timerTask = document.getElementById("timer-task"),
+    timerCircle = document.getElementById("timer-circle"),
+    timerCountdown = document.getElementById("timer-countdown");
 
-    
-    let isPaused = true;
-    let nIntervId;
-    let totalSeconds = 10 * 60; // Ejemplo 10 minutos
-    btnReset.classList.add("bg-gray-500");
+  const btnStart = document.getElementById("btn-start"),
+    btnReset = document.getElementById("btn-reset"),
+    btnText = document.getElementById("btn-text"),
+    iconPlay = document.getElementById("icon-play"),
+    iconPause = document.getElementById("icon-pause"),
+    iconReset = document.getElementById("icon-reset");
 
-    
-    const startPomodoro = () => {        
-        if (!nIntervId) {
-            nIntervId = setInterval(() => {
-                if (totalSeconds < 0) {
-                    clearInterval(nIntervId);
-                    nIntervId = null;
-                    alert("¡Pomodoro terminado!");
-                    return;
-                }
-                updateDisplayTimer(totalSeconds);
-                totalSeconds--;
-            }, 100);
-      }
-    };
-    
+  let isPaused = true;
+  let nIntervId;
+  let totalSeconds = 10 * 60; // Ejemplo 10 minutos
+  btnReset.classList.add("bg-gray-500");
 
-    const updateDisplayTimer = ( totalSeconds ) => {
-        // totalSeconds--;
-        const minutes = Math.floor( totalSeconds / 60 );
-        const seconds = totalSeconds % 60;
-        timerCountdown.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  const startPomodoro = () => {
+    if (!nIntervId) {
+      nIntervId = setInterval(() => {
+        if (totalSeconds < 0) {
+          clearInterval(nIntervId);
+          nIntervId = null;
+          alert("¡Pomodoro terminado!");
+          return;
+        }
+        updateDisplayTimer(totalSeconds);
+        totalSeconds--;
+      }, 100);
     }
+  };
 
-    const togglePomodoro = () => {
-      if (isPaused) {
-        startPomodoro();
-        isPaused = false;
-        btnText.textContent = "Pause";
-        iconPlay.classList.toggle("hidden");
-        iconPause.classList.toggle("hidden");
-        btnStart.classList.toggle("justify-center");
-        console.log("Iniciando o reanudando...");
-      } else {
-        clearInterval(nIntervId);
-        nIntervId = null;
-        isPaused = true;
-        btnText.textContent = "Start";
-        iconPlay.classList.toggle("hidden");
-        iconPause.classList.toggle("hidden");
-        btnStart.classList.toggle("justify-center");
-        console.log("Pomodoro pausado...");
-      }
-    };
+  const updateDisplayTimer = (totalSeconds) => {
+    // totalSeconds--;
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    timerCountdown.textContent = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  };
 
-    const pomodoroReset = () => {
+  const togglePomodoro = () => {
+    if (isPaused) {
+      startPomodoro();
+      isPaused = false;
+      btnText.textContent = "Pause";
+      iconPlay.classList.toggle("hidden");
+      iconPause.classList.toggle("hidden");
+      btnStart.classList.toggle("justify-center");
+      console.log("Iniciando o reanudando...");
+    } else {
+      clearInterval(nIntervId);
+      nIntervId = null;
+      isPaused = true;
+      btnText.textContent = "Start";
+      iconPlay.classList.toggle("hidden");
+      iconPause.classList.toggle("hidden");
+      btnStart.classList.toggle("justify-center");
+      console.log("Pomodoro pausado...");
+    }
+  };
 
-        clearInterval(nIntervId);
-        nIntervId = null;
-        totalSeconds = 10 * 60;
-        isPaused = true;
+  const pomodoroReset = () => {
+    clearInterval(nIntervId);
+    nIntervId = null;
+    totalSeconds = 10 * 60;
+    isPaused = true;
 
-        timerCountdown.textContent = "10:00";
+    timerCountdown.textContent = "10:00";
 
-        // Asegurar que el ícono de "Play" esté visible y "Pause" oculto
-        iconPause.classList.add("hidden");
-        iconPlay.classList.remove("hidden");
-        btnText.textContent = "Start"
-        btnStart.classList.remove("justify-center");
+    // Asegurar que el ícono de "Play" esté visible y "Pause" oculto
+    iconPause.classList.add("hidden");
+    iconPlay.classList.remove("hidden");
+    btnText.textContent = "Start";
+    btnStart.classList.remove("justify-center");
 
+    console.log("Reiniciando...");
+  };
 
-        console.log("Reiniciando...");
-    };
-
-
-      
-    
-    
-    btnStart.addEventListener("click", togglePomodoro);
-    btnReset.addEventListener("click", pomodoroReset);
-
-
+  btnStart.addEventListener("click", togglePomodoro);
+  btnReset.addEventListener("click", pomodoroReset);
 </script>

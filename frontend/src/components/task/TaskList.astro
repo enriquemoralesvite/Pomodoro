@@ -4,14 +4,15 @@ import FormTask from "./FormTask.astro";
 ---
 
 <!-- Task component -->
-<div class="p-3 bg-white/30 rounded-2xl">
+<div class="max-h-[90%] p-3 bg-white/30 rounded-2xl flex flex-col">
   <!-- Search input -->
   <div class="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/70">
     <Icon name="search" class="text-black/50" />
     <input
+      id="search-task"
       type="text"
       placeholder="Search Tasks"
-      class="outline-none caret-black/50"
+      class="outline-none caret-black/50 flex-1"
     />
   </div>
 
@@ -27,7 +28,7 @@ import FormTask from "./FormTask.astro";
   </div>
 
   <FormTask />
-  <ul id="task-list" class="flex flex-col gap-2"></ul>
+  <ul id="task-list" class="flex flex-col gap-2 overflow-y-auto flex-1"></ul>
 </div>
 
 <script type="module">
@@ -52,15 +53,35 @@ import FormTask from "./FormTask.astro";
     });
   } else {
     console.log(error);
-    // // Simulated task data
-    // let data = [
-    //   { id: 1, title: "tarea1", duration: 40 },
-    //   { id: 2, title: "tarea2", duration: 40 },
-    // ];
-    // // Render tasks
-    // data.forEach((task) => {
-    //   const element = createTask(task);
-    //   document.getElementById("task-list").appendChild(element);
-    // });
   }
+
+  //Search task
+  const searchTaskInput = document.getElementById("search-task");
+
+  // Get all tasks
+  const taskList = document.getElementById("task-list");
+
+  // Debounce function
+  function debounce(callback, delay = 500) {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => callback(...args), delay);
+    };
+  }
+
+  // Search function
+  const handleSearch = () => {
+    const searchValue = searchTaskInput.value.trim().toLowerCase();
+    console.log(searchValue);
+
+    const tasks = Array.from(taskList.children);
+
+    tasks.forEach((element) => {
+      const title = element.dataset.title?.toLowerCase() || "";
+      element.classList.toggle("hidden", !title.includes(searchValue));
+    });
+  };
+
+  searchTaskInput.addEventListener("input", debounce(handleSearch));
 </script>
