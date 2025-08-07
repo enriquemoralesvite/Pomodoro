@@ -68,21 +68,21 @@ const Task = {
             }
         }
 
-        // Lógica dinámica original para otras actualizaciones (ej. cambiar título, duración, etc.)
+        // Lógica dinámica corregida para otras actualizaciones (ej. cambiar título, duración, etc.)
         const fields = [];
         const values = [];
         let valueIndex = 1;
 
         if (taskData.title !== undefined) {
-            fields.push(`title = ${valueIndex++}`);
+            fields.push(`title = $${valueIndex++}`);
             values.push(taskData.title);
         }
         if (taskData.description !== undefined) {
-            fields.push(`description = ${valueIndex++}`);
+            fields.push(`description = $${valueIndex++}`);
             values.push(taskData.description);
         }
         if (taskData.duration !== undefined) {
-            fields.push(`duration = ${valueIndex++}`);
+            fields.push(`duration = $${valueIndex++}`);
             values.push(taskData.duration);
         }
 
@@ -96,7 +96,7 @@ const Task = {
         const query = `
             UPDATE tasks
             SET ${fields.join(', ')}
-            WHERE id = ${valueIndex++} AND user_id = ${valueIndex++}
+            WHERE id = $${valueIndex++} AND user_id = $${valueIndex++}
             RETURNING id, title, description, status, duration
         `;
 
