@@ -42,42 +42,61 @@ const Task = {
     },
 
     async update(taskId, taskData, userId) {
-        // FIX: Se construye la consulta dinámicamente para actualizar solo los campos proporcionados.
-        // Esto evita que se intenten actualizar campos no nulos (como status) con valores NULL cuando no se envían.
+        // FIX: Se soluciona de raíz el error "could not determine data type of parameter $1".
+        // Se utiliza una consulta específica y no dinámica para la actualización de estado, que es el caso problemático.
+        // Esto evita la ambigüedad que confundía al driver de la base de datos.
+        if (taskData.status && Object.keys(taskData).length === 1) {
+            const newStatus = taskData.status;
+            // Se usa CURRENT_TIMESTAMP para la fecha de completado y NULL si se desmarca.
+            // Esto se inyecta directamente en la consulta, lo cual es seguro porque no viene del usuario.
+            const completedAtClause = newStatus === 'completed' ? 'completed_at = CURRENT_TIMESTAMP' : 'completed_at = NULL';
+
+            const query = `
+                UPDATE tasks
+                SET status = $1, ${completedAtClause}
+                WHERE id = $2 AND user_id = $3
+                RETURNING id, title, description, status, duration
+            `;
+            const values = [newStatus, taskId, userId];
+
+            try {
+                const { rows } = await db.query(query, values);
+                return rows[0];
+            } catch (error) {
+                console.error('Error al actualizar la tarea', error);
+                throw error;
+            }
+        }
+
+        // Lógica dinámica original para otras actualizaciones (ej. cambiar título, duración, etc.)
         const fields = [];
         const values = [];
         let valueIndex = 1;
 
-        // Se añaden los campos a actualizar solo si existen en el objeto taskData
         if (taskData.title !== undefined) {
-            fields.push(`title = $${valueIndex++}`);
+            fields.push(`title = ${valueIndex++}`);
             values.push(taskData.title);
         }
         if (taskData.description !== undefined) {
-            fields.push(`description = $${valueIndex++}`);
+            fields.push(`description = ${valueIndex++}`);
             values.push(taskData.description);
         }
-        if (taskData.status !== undefined) {
-            fields.push(`status = $${valueIndex++}`);
-            values.push(taskData.status);
-        }
         if (taskData.duration !== undefined) {
-            fields.push(`duration = $${valueIndex++}`);
+            fields.push(`duration = ${valueIndex++}`);
             values.push(taskData.duration);
         }
 
-        // Si no hay campos para actualizar, no se hace nada y se devuelve la tarea original.
         if (fields.length === 0) {
+            // Si no hay campos para actualizar, no se hace nada.
             return this.findById(taskId, userId);
         }
 
-        // Se añaden los IDs para el WHERE de la consulta
         values.push(taskId, userId);
 
         const query = `
             UPDATE tasks
             SET ${fields.join(', ')}
-            WHERE id = $${valueIndex++} AND user_id = $${valueIndex++}
+            WHERE id = ${valueIndex++} AND user_id = ${valueIndex++}
             RETURNING id, title, description, status, duration
         `;
 
@@ -98,6 +117,18 @@ const Task = {
             return rows[0];
         } catch (error) {
             console.error('Error al eliminar la tarea', error);
+            throw error;
+        }
+    },
+
+    // FIX: Se cuentan solo las tareas completadas en el día actual, según feedback.
+  async countCompletedByUserId(userId) {
+        const query = "SELECT COUNT(*) FROM tasks WHERE user_id = $1 AND status = 'completed' AND completed_at::date = CURRENT_DATE";
+        try {
+            const { rows } = await db.query(query, [userId]);
+            return parseInt(rows[0].count, 10);
+        } catch (error) {
+            console.error('Error al contar las tareas completadas', error);
             throw error;
         }
     }

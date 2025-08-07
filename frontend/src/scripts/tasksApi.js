@@ -78,3 +78,25 @@ function getDefaultError(error) {
     error: error.toString(),
   };
 }
+
+/**
+ * Obtiene las estadísticas agregadas (pomodoros, descansos, tareas) del backend.
+ * Se utiliza para actualizar las tarjetas de estadísticas en el dashboard.
+ * @returns {Promise<Object>} Un objeto con los datos de las estadísticas.
+ */
+export async function getStatistics() {
+  try {
+    const response = await fetch(`${API_URL}/timer/statistics`, {
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Error al obtener las estadísticas: ${response.status} ${response.statusText} - ${errorText}`
+      );
+    }
+    return await response.json();
+  } catch (error) {
+    return getDefaultError(error);
+  }
+}
