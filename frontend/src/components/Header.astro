@@ -17,7 +17,8 @@ import { Icon } from "astro-icon/components";
 
 <script is:inline>
   const navMenu = document.getElementById("nav-menu");
-  const token = localStorage.getItem("token");
+  // Se comprueba el accessToken, que es el token de autenticación principal.
+  const accessToken = localStorage.getItem("accessToken");
   const userString = localStorage.getItem("user");
 
   let user = null;
@@ -26,13 +27,16 @@ import { Icon } from "astro-icon/components";
       user = JSON.parse(userString);
     } catch (e) {
       console.error("Error al parsear los datos del usuario:", e);
-      localStorage.removeItem("token");
+      // Si los datos del usuario están corruptos, se limpia todo para evitar problemas.
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
-      window.location.href = "/login"; // Mantenemos esto por seguridad en caso de datos corruptos
+      window.location.href = "/login";
     }
   }
 
-  if (token && user) {
+  // La condición ahora se basa en la existencia del accessToken.
+  if (accessToken && user) {
     // Usuario logueado
     navMenu.innerHTML = `
             <span class="text-black/70 font-semibold">Hola, ${user.username || "Usuario"}</span>
@@ -44,7 +48,9 @@ import { Icon } from "astro-icon/components";
     const logoutButton = document.getElementById("logout-button");
     if (logoutButton) {
       logoutButton.addEventListener("click", () => {
-        localStorage.removeItem("token");
+        // Al cerrar sesión, se eliminan ambos tokens y los datos del usuario.
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
         localStorage.removeItem("user");
         window.location.href = "/login";
       });

@@ -1,27 +1,24 @@
-const API_URL = import.meta.env.PUBLIC_API_URL;
+import { fetchWithAuth } from './apiClient';
 
-// Se crea una función auxiliar para incluir el token de autenticación en las cabeceras.
-// El backend requiere un token JWT para autorizar las peticiones a las rutas de tareas.
-function getAuthHeaders() {
-  const token = localStorage.getItem("token");
+// Función auxiliar para manejar errores comunes de la API.
+function getDefaultError(error) {
+  console.error("Error en la API de tareas:", error);
   return {
-    "Content-Type": "application/json",
-    Authorization: token ? `Bearer ${token}` : "",
+    success: false,
+    error: error.toString(),
   };
 }
 
+/**
+ * Obtiene todas las tareas del usuario.
+ * Utiliza fetchWithAuth para asegurar que la petición está autenticada.
+ */
 export async function getTasks() {
   try {
-    // Se añaden las cabeceras de autenticación a la petición.
-    const response = await fetch(`${API_URL}/tasks`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await fetchWithAuth("/tasks");
     if (!response.ok) {
-      // Se mejora el manejo de errores para obtener más detalles en caso de fallo.
       const errorText = await response.text();
-      throw new Error(
-        `Error al obtener las tareas: ${response.status} ${response.statusText} - ${errorText}`
-      );
+      throw new Error(`Error al obtener las tareas: ${response.status} ${response.statusText} - ${errorText}`);
     }
     return await response.json();
   } catch (error) {
@@ -29,12 +26,15 @@ export async function getTasks() {
   }
 }
 
+/**
+ * Agrega una nueva tarea.
+ * @param {object} task - El objeto de la tarea a agregar.
+ */
 export async function addTask(task) {
   try {
-    const response = await fetch(`${API_URL}/tasks`, {
+    const response = await fetchWithAuth("/tasks", {
       method: "POST",
-      headers: getAuthHeaders(), // Se añaden las cabeceras de autenticación.
-      body: JSON.stringify(task), // El cuerpo de la petición debe ser un string JSON.
+      body: JSON.stringify(task),
     });
     return await response.json();
   } catch (error) {
@@ -42,13 +42,16 @@ export async function addTask(task) {
   }
 }
 
-// La firma de la función se ajusta para recibir el id y los datos por separado, lo que es más estándar.
+/**
+ * Edita una tarea existente.
+ * @param {number} id - El ID de la tarea a editar.
+ * @param {object} task - Los datos actualizados de la tarea.
+ */
 export async function editTask(id, task) {
   try {
-    const response = await fetch(`${API_URL}/tasks/${id}`, {
-      method: "PUT", // Se usa PUT, que es lo que el backend espera, en lugar de 'UPDATE'.
-      headers: getAuthHeaders(), // Se añaden las cabeceras de autenticación.
-      body: JSON.stringify(task), // El cuerpo de la petición debe ser un string JSON.
+    const response = await fetchWithAuth(`/tasks/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(task),
     });
     return await response.json();
   } catch (error) {
@@ -56,11 +59,14 @@ export async function editTask(id, task) {
   }
 }
 
+/**
+ * Elimina una tarea.
+ * @param {number} id - El ID de la tarea a eliminar.
+ */
 export async function deleteTask(id) {
   try {
-    const response = await fetch(`${API_URL}/tasks/${id}`, {
+    const response = await fetchWithAuth(`/tasks/${id}`, {
       method: "DELETE",
-      headers: getAuthHeaders(), // Se añaden las cabeceras de autenticación.
     });
     if (response.ok) {
       return { success: true };
@@ -71,29 +77,15 @@ export async function deleteTask(id) {
   }
 }
 
-function getDefaultError(error) {
-  console.error("Error en la API:", error);
-  return {
-    success: false,
-    error: error.toString(),
-  };
-}
-
 /**
- * Obtiene las estadísticas agregadas (pomodoros, descansos, tareas) del backend.
- * Se utiliza para actualizar las tarjetas de estadísticas en el dashboard.
- * @returns {Promise<Object>} Un objeto con los datos de las estadísticas.
+ * Obtiene las estadísticas de las tareas.
  */
 export async function getStatistics() {
   try {
-    const response = await fetch(`${API_URL}/timer/statistics`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await fetchWithAuth("/timer/statistics");
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(
-        `Error al obtener las estadísticas: ${response.status} ${response.statusText} - ${errorText}`
-      );
+      throw new Error(`Error al obtener las estadísticas: ${response.status} ${response.statusText} - ${errorText}`);
     }
     return await response.json();
   } catch (error) {

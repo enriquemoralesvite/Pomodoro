@@ -1,26 +1,22 @@
-const API_URL = import.meta.env.PUBLIC_API_URL;
+import { fetchWithAuth } from './apiClient';
 
-function getAuthHeaders() {
-  const token = localStorage.getItem("token");
-  return {
-    "Content-Type": "application/json",
-    Authorization: token ? `Bearer ${token}` : "",
-  };
-}
-
+// Función auxiliar para manejar errores comunes de la API.
 function getDefaultError(error) {
-  console.error("Error en la API:", error);
+  console.error("Error en la API de temporizador:", error);
   return {
     success: false,
     error: error.toString(),
   };
 }
 
+/**
+ * Registra una nueva sesión de Pomodoro (trabajo o descanso).
+ * @param {object} sessionData - Los datos de la sesión a registrar.
+ */
 export async function registerSession(sessionData) {
   try {
-    const response = await fetch(`${API_URL}/timer`, {
+    const response = await fetchWithAuth("/timer", {
       method: "POST",
-      headers: getAuthHeaders(),
       body: JSON.stringify(sessionData),
     });
     return await response.json();
