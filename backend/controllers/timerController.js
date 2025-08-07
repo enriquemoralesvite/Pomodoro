@@ -132,10 +132,10 @@ const getAggregatedStats = async (req, res) => {
   try {
     const userId = req.user.id; // El ID de usuario se obtiene del token JWT a través del middleware.
 
-    // Función auxiliar para mantener el código limpio y evitar repetición.
+    // FIX: Se cuentan solo las sesiones del día actual para las estadísticas, según feedback.
     const countSessions = async (sessionType) => {
       const result = await query(
-        "SELECT COUNT(*) FROM pomodoro_sessions WHERE user_id = $1 AND session_type = $2",
+        "SELECT COUNT(*) FROM pomodoro_sessions WHERE user_id = $1 AND session_type = $2 AND created_at::date = CURRENT_DATE",
         [userId, sessionType]
       );
       return parseInt(result.rows[0].count, 10);
