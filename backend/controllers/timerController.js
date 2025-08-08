@@ -29,7 +29,6 @@ const registerSession = async (req, res) => {
       long_break: 15 * 60
     };
 
-
     if (duration !== expectedDurations[sessionType]) {
       return res.status(400).json({
         data: null,

@@ -1,17 +1,12 @@
-//const {Pool} = require('pg');// pg = node-postgres 
-//require('dotenv').config({path: '../../.env'}); //cargar variables de entorno //oficial
-
-require('dotenv').config();
 const { Pool } = require('pg');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  ssl: process.env.PGHOST !== 'localhost' ? { rejectUnauthorized: false } : false
 });
 
 pool.on('connect', () => console.log('✅ Conexión exitosa a PostgreSQL'));
+
 pool.on('error', (err) => {
   console.error('❌ Error de conexión:', err);
   process.exit(-1);
