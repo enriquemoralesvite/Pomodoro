@@ -1,9 +1,10 @@
 const { query } = require('../config/db');
-const Task = require('../models/Task'); // Importar el modelo de Tareas
+const Task = require('../models/Task'); // Modelo de tareas
 
+// 📝 Registra una sesión Pomodoro
 const registerSession = async (req, res) => {
   try {
-    const { userId, taskId, sessionType, duration } = req.body;
+    const { userId, taskId, sessionType, duration, recurrente = false } = req.body;
 
     if (!userId || !sessionType || !duration) {
       return res.status(400).json({
@@ -22,21 +23,26 @@ const registerSession = async (req, res) => {
       });
     }
 
-    // NOTA: Duraciones cortas para facilitar las pruebas de desarrollo.
     const expectedDurations = {
-      //work: 25 * 60,
-      work: 5, // 5 segundos (probando)
-      //short_break: 5 * 60,
-      short_break: 3, // 3 segundos (probando)
-      //long_break: 15 * 60
-      long_break: 4 // 4 segundos (probando)
+      work: 25 * 60,
+      short_break: 5 * 60,
+      long_break: 15 * 60
     };
+
 
     if (duration !== expectedDurations[sessionType]) {
       return res.status(400).json({
         data: null,
         success: false,
         error: `La duración debe ser ${expectedDurations[sessionType]} segundos para ${sessionType}`
+      });
+    }
+
+    if (typeof recurrente !== 'boolean') {
+      return res.status(400).json({
+        data: null,
+        success: false,
+        error: "El campo 'recurrente' debe ser booleano"
       });
     }
 
@@ -55,8 +61,10 @@ const registerSession = async (req, res) => {
     }
 
     const result = await query(
-      'INSERT INTO pomodoro_sessions (user_id, task_id, session_type, duration) VALUES ($1, $2, $3, $4) RETURNING id',
-      [userId, taskId || null, sessionType, duration]
+      `INSERT INTO pomodoro_sessions (user_id, task_id, session_type, duration, recurrente)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id`,
+      [userId, taskId || null, sessionType, duration, recurrente]
     );
 
     res.status(201).json({
@@ -74,6 +82,7 @@ const registerSession = async (req, res) => {
   }
 };
 
+// 📊 Estadísticas por fecha y tipo de sesión
 const getStats = async (req, res) => {
   try {
     const userId = req.query.userId;
@@ -113,6 +122,7 @@ const getStats = async (req, res) => {
   }
 };
 
+// ⏱️ Configuración estándar del temporizador
 const getTimerConfig = (req, res) => {
   const timerConfig = {
     work: 25 * 60,
@@ -127,12 +137,11 @@ const getTimerConfig = (req, res) => {
   });
 };
 
-// Obtiene un resumen de todas las estadísticas para las tarjetas del dashboard.
+// 📈 Estadísticas agregadas para el dashboard
 const getAggregatedStats = async (req, res) => {
   try {
-    const userId = req.user.id; // El ID de usuario se obtiene del token JWT a través del middleware.
+    const userId = req.user.id;
 
-    // FIX: Se cuentan solo las sesiones del día actual para las estadísticas, según feedback.
     const countSessions = async (sessionType) => {
       const result = await query(
         "SELECT COUNT(*) FROM pomodoro_sessions WHERE user_id = $1 AND session_type = $2 AND created_at::date = CURRENT_DATE",
@@ -141,12 +150,11 @@ const getAggregatedStats = async (req, res) => {
       return parseInt(result.rows[0].count, 10);
     };
 
-    // Se ejecutan todas las consultas de conteo en paralelo para mayor eficiencia.
     const [pomodorosCompleted, shortBreaks, longBreaks, tasksCompleted] = await Promise.all([
       countSessions('work'),
       countSessions('short_break'),
       countSessions('long_break'),
-      Task.countCompletedByUserId(userId) // Llama al nuevo método del modelo Task.
+      Task.countCompletedByUserId(userId)
     ]);
 
     res.status(200).json({
@@ -158,7 +166,6 @@ const getAggregatedStats = async (req, res) => {
         tasksCompleted
       }
     });
-
   } catch (error) {
     console.error('Error al obtener estadísticas agregadas:', error);
     res.status(500).json({
@@ -172,5 +179,5 @@ module.exports = {
   registerSession,
   getStats,
   getTimerConfig,
-  getAggregatedStats // Se exporta la nueva función
+  getAggregatedStats
 };
