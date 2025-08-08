@@ -14,6 +14,16 @@ export function createTask(task) {
   li.className =
     "group task-item flex justify-between px-2 pb-2 pt-2 hover:bg-white/30 rounded-lg gap-2";
   li.innerHTML = getTaskHtml(title, duration);
+
+  // Custom Event: Emitir evento personalizado al hacer clic en la tarea
+  li.addEventListener("click", () => {
+    document.dispatchEvent(
+      new CustomEvent("task:selected", {
+        detail: { nombre: title, duration: duration}
+      })
+    );
+  });
+
   bindSaveTaskAction(li);
   bindEditTaskAction(li);
   bindCancelTaskAction(li);

@@ -3,19 +3,19 @@ import TimerClient from "./TimerClient.astro"
 ---
 
 <div id="menuList" class="hidden w-full relative animate-slide-in-top mt-[-20px] shadow-lg">
-    <section class="flex flex-col gap-5 bg-gray-200/50 py-3 px-4 border border-gray-300 backdrop-blur-2xl rounded-lg">
-        <p class="text-[#4B5563] text-xs">Select the timer mode:</p>
-        <button id="btn-pomodoro" class="border border-transparent hover:border-gray-500 rounded-sm focus:border-gray-400 focus:bg-gray-400/20">
+    <p class="text-[#4B5563] text-xs">Select the timer mode:</p>
+    <section id="menu-option" class="flex flex-col gap-5 bg-gray-200/40 py-3 px-4 border border-gray-300 backdrop-blur-2xl rounded-xl justify-around lg:flex-row ">
+        <button id="btn-pomodoro" class="border border-transparent px-5 py-2 hover:border-gray-500 shadow shadow-gray-400 rounded-sm focus:border-gray-400 focus:bg-gray-400/20">
             <p class="font-bold">Pomodoro</p>
-            <p>25:00</p>
+            <p class="text-xs">25:00</p>
         </button>
-        <button id="btn-short-break" class="border border-transparent hover:border-gray-500 rounded-sm focus:border-gray-400 focus:bg-gray-400/20">
+        <button id="btn-short-break" class="border border-transparent px-5 py-2 hover:border-gray-500 shadow shadow-gray-400 rounded-sm focus:border-gray-400 focus:bg-gray-400/20">
             <p class="font-bold">Short Break</p>
-            <p>05:00</p>
+            <p class="text-xs">05:00</p>
         </button>
-        <button id="btn-long-break" class="border border-transparent hover:border-gray-500 rounded-sm focus:border-gray-400 focus:bg-gray-400/20">
+        <button id="btn-long-break" class="border border-transparent px-5 py-2 hover:border-gray-500 shadow shadow-gray-400 rounded-sm focus:border-gray-400 focus:bg-gray-400/20">
             <p class="font-bold">Long Break</p>
-            <p>15:00</p>
+            <p class="text-xs">15:00</p>
         </button>
     </section>
 </div>
@@ -24,14 +24,19 @@ import TimerClient from "./TimerClient.astro"
 <script type="module">
     const menuConfig = document.getElementById("caret-down"),
           menuList   = document.getElementById("menuList"),
-          iconMenu   = document.getElementById("iconMenu");
-
-    console.log(menuConfig)
-    console.log(menuList)
+          iconMenu   = document.getElementById("iconMenu"),
+          timerCountdown = document.getElementById("timer-countdown"),
+          menuOption = document.getElementById("menu-option");
 
     menuConfig.addEventListener("click", () => {
         iconMenu.classList.toggle("animate-flip-vertical")
         menuList.classList.toggle("hidden")
+    });
+
+    menuOption.addEventListener("click", (e) => {
+      const timeMinutes = e.target.closest("button")?.querySelectorAll("p")[1];
+      const time = Number(timeMinutes?.textContent?.slice(0,2));
+      timerCountdown.textContent = `${time.toString().padStart(2, '0')}:00`;
     });
 
 </script>
