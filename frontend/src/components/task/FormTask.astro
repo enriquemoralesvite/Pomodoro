@@ -8,9 +8,12 @@
       type="text"
       name="title"
       placeholder="Task Title"
+      list="title-datalist"
+      autocomplete="off"
       required
       class="outline-none border-b border-b-black/50 text-black/70 text-sm px-2 py-1 pt-2"
     />
+    <datalist id="title-datalist"> </datalist>
     <div class="flex gap-3">
       <input
         type="number"
@@ -30,6 +33,11 @@
       />
     </div>
 
+    <div class="flex items-center gap-2">
+      <input type="checkbox" name="recurrent" />
+      <label for="recurrent" class="text-sm">Recurrent Task</label>
+    </div>
+
     <div class="flex justify-center gap-10 py-2 flex-wrap">
       <button
         type="submit"
@@ -45,61 +53,69 @@
       >
     </div>
   </form>
-</div>
 
-<script type="module">
-  import { createTask } from "/src/scripts/tasks.js";
-  import { addTask } from "/src/scripts/tasksApi.js";
+  <script type="module">
+    import { createTask, addTaskDatalistOption } from "/src/scripts/tasks.js";
+    import { addTask } from "/src/scripts/tasksApi.js";
 
-  const btnAddTask = document.getElementById("btn-add-task");
-  const btnCancelTask = document.getElementById("btn-cancel-task");
-  const formTaskContainer = document.getElementById("form-task-container");
-  const form = document.getElementById("add-task-form");
-  const btnOpenFormTask = document.getElementById("btn-open-form-task");
+    const btnAddTask = document.getElementById("btn-add-task");
+    const btnCancelTask = document.getElementById("btn-cancel-task");
+    const formTaskContainer = document.getElementById("form-task-container");
+    const form = document.getElementById("add-task-form");
+    const btnOpenFormTask = document.getElementById("btn-open-form-task");
 
-  function resetForm() {
-    formTaskContainer.classList.toggle("invisible");
-    formTaskContainer.classList.toggle("h-0");
-    btnOpenFormTask.classList.toggle("formOpen");
-    form.reset();
-  }
+    function resetForm() {
+      formTaskContainer.classList.toggle("invisible");
+      formTaskContainer.classList.toggle("h-0");
+      btnOpenFormTask.classList.toggle("formOpen");
+      form.reset();
+    }
 
-  // Cancel Button
-  btnCancelTask.addEventListener("click", () => {
-    resetForm();
-  });
+    // Cancel Button
+    btnCancelTask.addEventListener("click", () => {
+      resetForm();
+    });
 
-  // Add tasks
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+    // Add tasks
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    //Get form values.
-    const formData = new FormData(form);
-    const title = formData.get("title");
-    const durationMinutes = +formData.get("duration-minutes");
-    const durationHours = +formData.get("duration-hours");
-    const duration = durationMinutes + durationHours * 60;
+      //Get form values.
+      const formData = new FormData(form);
+      const title = formData.get("title");
+      const recurrent = formData.get("recurrent");
+      const durationMinutes = +formData.get("duration-minutes");
+      const durationHours = +formData.get("duration-hours");
+      const duration = durationMinutes + durationHours * 60;
 
-    btnAddTask.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="18" cy="12" r="0" 
+      btnAddTask.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="18" cy="12" r="0" 
       fill="currentColor"><animate attributeName="r" begin=".67" calcMode="spline" dur="1.5s" keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" 
       repeatCount="indefinite" values="0;2;0;0"/></circle><circle cx="12" cy="12" r="0" fill="currentColor"><animate attributeName="r" begin=".33" 
       calcMode="spline" dur="1.5s" keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" repeatCount="indefinite" values="0;2;0;0"/></circle><circle 
       cx="6" cy="12" r="0" fill="currentColor"><animate attributeName="r" begin="0" calcMode="spline" dur="1.5s" 
       keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" repeatCount="indefinite" values="0;2;0;0"/></circle></svg>`;
-    btnAddTask.disabled = true;
-    btnCancelTask.disabled = true;
-    const { data, success, error } = await addTask({ title, duration });
-    if (success) {
-      const task = data;
-      const element = createTask(task);
-      document.getElementById("task-list").appendChild(element);
-      resetForm();
-    } else {
-      console.log(error);
-    }
+      btnAddTask.disabled = true;
+      btnCancelTask.disabled = true;
+      const { data, success, error } = await addTask({
+        title,
+        duration,
+        recurrent,
+      });
+      if (success) {
+        const task = data;
+        const element = createTask(task);
+        if (task.recurrent) {
+          addTaskDatalistOption(task.title);
+        }
+        document.getElementById("task-list").appendChild(element);
+        resetForm();
+      } else {
+        console.log(error);
+      }
 
-    btnAddTask.innerText = "Agregar";
-    btnAddTask.disabled = false;
-    btnCancelTask.disabled = false;
-  });
-</script>
+      btnAddTask.innerText = "Agregar";
+      btnAddTask.disabled = false;
+      btnCancelTask.disabled = false;
+    });
+  </script>
+</div>

@@ -32,7 +32,7 @@ import FormTask from "./FormTask.astro";
 </div>
 
 <script type="module">
-  import { createTask } from "/src/scripts/tasks.js";
+  import { createTask, addTaskDatalistOption } from "/src/scripts/tasks.js";
   import { getTasks } from "/src/scripts/tasksApi.js";
 
   const btnOpenFormTask = document.getElementById("btn-open-form-task");
@@ -50,6 +50,9 @@ import FormTask from "./FormTask.astro";
     data.forEach((task) => {
       const element = createTask(task);
       document.getElementById("task-list").appendChild(element);
+      if (task.recurrent) {
+        addTaskDatalistOption(task.title);
+      }
     });
   } else {
     console.log(error);
