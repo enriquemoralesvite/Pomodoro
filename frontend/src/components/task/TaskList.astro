@@ -28,6 +28,21 @@ import FormTask from "./FormTask.astro";
   </div>
 
   <FormTask />
+  <div class="flex gap-3 mb-2">
+    <button id="btn-task-pending" data-filter="pending" class="task-list-chip"
+      >Pending</button
+    >
+    <button
+      id="btn-task-in-progress"
+      data-filter="in_progress"
+      class="task-list-chip">In progress</button
+    >
+    <button
+      id="btn-task-completed"
+      data-filter="completed"
+      class="task-list-chip">Completed</button
+    >
+  </div>
   <ul id="task-list" class="flex flex-col gap-2 overflow-y-auto flex-1"></ul>
 </div>
 
@@ -37,6 +52,11 @@ import FormTask from "./FormTask.astro";
 
   const btnOpenFormTask = document.getElementById("btn-open-form-task");
   const container = document.getElementById("form-task-container");
+  //Search task
+  const searchTaskInput = document.getElementById("search-task");
+
+  // Get all tasks
+  const taskList = document.getElementById("task-list");
 
   btnOpenFormTask.addEventListener("click", () => {
     container.classList.toggle("invisible");
@@ -49,20 +69,17 @@ import FormTask from "./FormTask.astro";
     // Render tasks
     data.forEach((task) => {
       const element = createTask(task);
+
       document.getElementById("task-list").appendChild(element);
       if (task.recurrent) {
         addTaskDatalistOption(task.title);
       }
     });
+
+    sortTaskList();
   } else {
     console.log(error);
   }
-
-  //Search task
-  const searchTaskInput = document.getElementById("search-task");
-
-  // Get all tasks
-  const taskList = document.getElementById("task-list");
 
   // Debounce function
   function debounce(callback, delay = 500) {
@@ -87,4 +104,52 @@ import FormTask from "./FormTask.astro";
   };
 
   searchTaskInput.addEventListener("input", debounce(handleSearch));
+
+  // Task list filters
+  const taskListChips = document.querySelectorAll(".task-list-chip");
+
+  taskListChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      chip.classList.toggle("task-list-chip-active");
+      filterByStatus();
+    });
+  });
+
+  function filterByStatus() {
+    const taskListChips = document.querySelectorAll(".task-list-chip");
+    const activeFilters = Array.from(taskListChips)
+      .filter((chip) => chip.classList.contains("task-list-chip-active"))
+      .map((chip) => chip.dataset.filter);
+
+    const tasks = Array.from(taskList.children);
+
+    tasks.forEach((task) => {
+      const taskStatus = task.dataset.status;
+      task.classList.toggle(
+        "hidden",
+        activeFilters.length && !activeFilters.includes(taskStatus)
+      );
+    });
+  }
+
+  // Sort tasks list function
+  function sortTaskList() {
+    const tasks = Array.from(taskList.children);
+
+    tasks.sort((a, b) => {
+      const statusOrder = ["pending", "in_progress", "completed"];
+
+      const statusA = statusOrder.indexOf(a.dataset.status);
+      const statusB = statusOrder.indexOf(b.dataset.status);
+
+      if (statusA !== statusB) {
+        return statusA - statusB;
+      }
+      return a.dataset.title.localeCompare(b.dataset.title);
+    });
+
+    tasks.forEach((task) => {
+      taskList.appendChild(task);
+    });
+  }
 </script>

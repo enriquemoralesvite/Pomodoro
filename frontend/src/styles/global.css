@@ -113,3 +113,11 @@ input[type="checkbox"] {
   scrollbar-width: thin;
   scrollbar-color: #7c7a7a transparent;
 }
+
+.task-list-chip {
+  @apply flex justify-center flex-1 px-2 py-1 text-black/80 bg-transparent text-xs border border-gray-600 rounded-lg;
+}
+
+.task-list-chip-active {
+  @apply text-white  bg-gray-600;
+}

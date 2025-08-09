@@ -48,7 +48,7 @@ function getTaskHtml(title, duration, recurrent) {
       <span class="taskTitle line-clamp-2 break-all">${title} </span>
       <input type="text" name="title" class="inputTitle hidden" />
 
-      <span class="taskDurationContainer flex text-xs text-gray-400"
+      <span class="taskDurationContainer flex text-xs text-gray-500"
         >
 
         ${
