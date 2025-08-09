@@ -19,7 +19,7 @@ export function createTask(task) {
   li.addEventListener("click", () => {
     document.dispatchEvent(
       new CustomEvent("task:selected", {
-        detail: { nombre: title, duration: duration}
+        detail: { nombre: title, duration: duration },
       })
     );
   });
@@ -34,16 +34,27 @@ export function createTask(task) {
 }
 
 function getTaskHtml(title, duration) {
+  let hours = 0;
+  let minutes = duration;
+  if (duration > 59) {
+    hours = Math.floor(duration / 60);
+    minutes = duration - hours * 60;
+  }
   return `
-  <div class="flex items-center gap-3 w-full">
+  <div class="flex items-center gap-3 flex-1">
     <input type="checkbox" name="task-check" />
     <div class="flex flex-col w-full">
       <span class="taskTitle line-clamp-2 break-all">${title} </span>
       <input type="text" name="title" class="inputTitle hidden" />
 
-      <span class="taskDurationContainer flex text-xs text-gray-400">0/<span class="taskDuration">${duration}</span>
-      <input type="number" name="duration" class="inputDuration hidden" /> 
-      min.</span>
+      <span class="taskDurationContainer flex text-xs text-gray-400"
+        ><span class="taskDuration">${hours}</span>
+        <input type="number" name="duration-hours" class="inputDuration min-w-0 w-full text-center hidden" />
+        h:
+        <span class="taskDuration">${minutes}</span>
+        <input type="number" name="duration-minutes" class="inputDuration min-w-0 w-full text-center hidden" />
+         m
+      </span>
     </div>
   </div>
 
@@ -65,13 +76,21 @@ function getTaskHtml(title, duration) {
 }
 
 function bindSaveTaskAction(element) {
-  const { btnSave, inputTitle, inputDuration, taskTitle, taskDuration } =
-    getElements(element);
+  const {
+    btnSave,
+    inputTitle,
+    inputDurationHours,
+    inputDurationMin,
+    taskTitle,
+    taskDurationHours,
+    taskDurationMin,
+  } = getElements(element);
 
   btnSave.addEventListener("click", async () => {
     const title = inputTitle.value;
-    const duration = inputDuration.value;
-
+    const durationHours = +inputDurationHours.value;
+    const durationMin = +inputDurationMin.value;
+    const duration = durationMin + durationHours * 60;
     // Se pasa el ID por separado y los datos de la tarea en un objeto, como espera la API.
     // Antes se pasaba el objeto `element.dataset` completo, lo que causaba un error.
     const { success, error } = await editTask(element.dataset.id, {
@@ -82,7 +101,9 @@ function bindSaveTaskAction(element) {
       element.dataset.title = title;
       element.dataset.duration = duration;
       taskTitle.innerText = title;
-      taskDuration.innerText = duration;
+      taskDurationHours.innerText = durationHours;
+      taskDurationMin.innerText = durationMin;
+
       toggleElements(element);
     } else {
       console.log(error);
@@ -92,12 +113,21 @@ function bindSaveTaskAction(element) {
 
 //
 function bindEditTaskAction(element) {
-  const { btnEdit, inputTitle, inputDuration, taskTitle, taskDuration } =
-    getElements(element);
+  const {
+    btnEdit,
+    inputTitle,
+    inputDurationHours,
+    inputDurationMin,
+    taskTitle,
+    taskDurationHours,
+    taskDurationMin,
+  } = getElements(element);
 
   btnEdit.addEventListener("click", () => {
     inputTitle.value = taskTitle.innerText;
-    inputDuration.value = +taskDuration.innerText;
+    inputDurationHours.value = +taskDurationHours.innerText;
+    inputDurationMin.value = +taskDurationMin.innerText;
+
     element.classList.toggle("bg-white/50");
     toggleElements(element);
     inputTitle.focus();
@@ -153,19 +183,23 @@ function bindUpdateTaskStatus(element) {
     if (checkbox.checked) {
       taskTitle.classList.add(...styles);
       actions.classList.toggle("invisible");
-      const response = await editTask(element.dataset.id, { status: "completed" });
+      const response = await editTask(element.dataset.id, {
+        status: "completed",
+      });
       success = response.success;
     } else {
       taskTitle.classList.remove(...styles);
       actions.classList.toggle("invisible");
-      const response = await editTask(element.dataset.id, { status: "pending" });
+      const response = await editTask(element.dataset.id, {
+        status: "pending",
+      });
       success = response.success;
     }
 
     if (success) {
       // Se dispara un evento global para notificar a otros componentes (ej. estadísticas)
       // que los datos han cambiado y necesitan refrescarse, sin acoplar los componentes.
-      document.dispatchEvent(new CustomEvent('stats-updated'));
+      document.dispatchEvent(new CustomEvent("stats-updated"));
     }
 
     checkbox.disabled = false; // Desbloquea el checkbox
@@ -174,10 +208,12 @@ function bindUpdateTaskStatus(element) {
 
 function getElements(element) {
   const taskTitle = element.querySelector(".taskTitle");
-  const taskDuration = element.querySelector(".taskDuration");
+  const [taskDurationHours, taskDurationMin] =
+    element.querySelectorAll(".taskDuration");
 
   const inputTitle = element.querySelector(".inputTitle");
-  const inputDuration = element.querySelector(".inputDuration");
+  const [inputDurationHours, inputDurationMin] =
+    element.querySelectorAll(".inputDuration");
 
   const btnEdit = element.querySelector(".btnEdit");
   const btnDelete = element.querySelector(".btnDelete");
@@ -188,9 +224,11 @@ function getElements(element) {
 
   return {
     taskTitle,
-    taskDuration,
+    taskDurationHours,
+    taskDurationMin,
     inputTitle,
-    inputDuration,
+    inputDurationHours,
+    inputDurationMin,
     btnEdit,
     btnDelete,
     btnSave,

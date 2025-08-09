@@ -11,13 +11,25 @@
       required
       class="outline-none border-b border-b-black/50 text-black/70 text-sm px-2 py-1 pt-2"
     />
-    <input
-      type="number"
-      name="duration"
-      placeholder="Minutes"
-      required
-      class="outline-none border-b border-b-black/50 px-2 py-1 text-black/70 text-sm"
-    />
+    <div class="flex gap-3">
+      <input
+        type="number"
+        name="duration-hours"
+        placeholder="Hours"
+        min="0"
+        class="outline-none border-b border-b-black/50 px-2 py-1 text-black/70 text-sm flex-1"
+      />
+      <input
+        type="number"
+        name="duration-minutes"
+        placeholder="Minutes"
+        max="59"
+        min="0"
+        required
+        class="outline-none border-b border-b-black/50 px-2 py-1 text-black/70 text-sm flex-1"
+      />
+    </div>
+
     <div class="flex justify-center gap-10 py-2 flex-wrap">
       <button
         type="submit"
@@ -64,7 +76,9 @@
     //Get form values.
     const formData = new FormData(form);
     const title = formData.get("title");
-    const duration = +formData.get("duration");
+    const durationMinutes = +formData.get("duration-minutes");
+    const durationHours = +formData.get("duration-hours");
+    const duration = durationMinutes + durationHours * 60;
 
     btnAddTask.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="18" cy="12" r="0" 
       fill="currentColor"><animate attributeName="r" begin=".67" calcMode="spline" dur="1.5s" keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" 
@@ -84,7 +98,7 @@
       console.log(error);
     }
 
-    // btnAddTask.innerText = "Agregar";
+    btnAddTask.innerText = "Agregar";
     btnAddTask.disabled = false;
     btnCancelTask.disabled = false;
   });
