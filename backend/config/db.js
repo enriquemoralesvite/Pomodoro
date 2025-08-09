@@ -5,10 +5,20 @@ const pool = new Pool({
   ssl: process.env.PGHOST !== 'localhost' ? { rejectUnauthorized: false } : false
 });
 
-pool.on('connect', () => console.log('✅ Conexión exitosa a PostgreSQL'));
+// Función autoinvocada para "calentar" la conexión y asegurar que esté lista.
+(async () => {
+  try {
+    await pool.query('SELECT NOW()'); // Realiza una consulta simple para forzar la conexión.
+    console.log('✅ Conexión a la base de datos verificada y lista.');
+  } catch (err) {
+    console.error('❌ Error al verificar la conexión con la base de datos:', err);
+    process.exit(-1); // Si la conexión inicial falla, detiene la aplicación.
+  }
+})();
+
 
 pool.on('error', (err) => {
-  console.error('❌ Error de conexión:', err);
+  console.error('❌ Error inesperado en el cliente de la base de datos:', err);
   process.exit(-1);
 });
 

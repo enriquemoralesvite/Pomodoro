@@ -24,6 +24,7 @@ async function refreshAccessToken() {
 
         const { accessToken } = await response.json();
         localStorage.setItem("accessToken", accessToken); // Guardar el nuevo token
+        console.log("✅ Token de acceso refrescado exitosamente."); // Log para confirmar el refresco
         return accessToken;
 
     } catch (error) {
