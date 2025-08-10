@@ -43,36 +43,7 @@ const Task = {
     }
   },
 
-  async update(taskId, taskData, userId) {
-    // Se utiliza una consulta específica y no dinámica para la actualización de estado, que es el caso problemático.
-    // Esto evita la ambigüedad que confundía al driver de la base de datos.
-    if (taskData.status && Object.keys(taskData).length === 1) {
-      const newStatus = taskData.status;
-      // Se usa CURRENT_TIMESTAMP para la fecha de completado y NULL si se desmarca.
-      // Esto se inyecta directamente en la consulta, lo cual es seguro porque no viene del usuario.
-      const completedAtClause =
-        newStatus === "completed"
-          ? "completed_at = CURRENT_TIMESTAMP"
-          : "completed_at = NULL";
-
-      const query = `
-                UPDATE tasks
-                SET status = $1, ${completedAtClause}
-                WHERE id = $2 AND user_id = $3
-                RETURNING id, title, description, status, duration
-            `;
-      const values = [newStatus, taskId, userId];
-
-      try {
-        const { rows } = await db.query(query, values);
-        return rows[0];
-      } catch (error) {
-        console.error("Error al actualizar la tarea", error);
-        throw error;
-      }
-    }
-
-    // Lógica dinámica corregida para otras actualizaciones (ej. cambiar título, duración, etc.)
+  async update(taskId, taskData) {
     const fields = [];
     const values = [];
     let valueIndex = 1;
@@ -85,24 +56,26 @@ const Task = {
       fields.push(`description = $${valueIndex++}`);
       values.push(taskData.description);
     }
+    if (taskData.status !== undefined) {
+      fields.push(`status = $${valueIndex++}`);
+      values.push(taskData.status);
+    }
     if (taskData.duration !== undefined) {
       fields.push(`duration = $${valueIndex++}`);
       values.push(taskData.duration);
     }
 
     if (fields.length === 0) {
-      // Si no hay campos para actualizar, no se hace nada.
-      return this.findById(taskId, userId);
+      throw new Error("No hay campos para actualizar");
     }
 
-    values.push(taskId, userId);
+    values.push(taskId);
 
     const query = `
-            UPDATE tasks
-            SET ${fields.join(", ")}
-            WHERE id = $${valueIndex++} AND user_id = $${valueIndex++}
-            RETURNING id, title, description, status, duration
-        `;
+      UPDATE tasks
+      SET ${fields.join(", ")}
+      WHERE id = $${valueIndex}
+      RETURNING id, title, description, status, duration`;
 
     try {
       const { rows } = await db.query(query, values);
@@ -135,6 +108,18 @@ const Task = {
       return parseInt(rows[0].count, 10);
     } catch (error) {
       console.error("Error al contar las tareas completadas", error);
+      throw error;
+    }
+  },
+
+  async findAllPublic() {
+    // Devuelve todas las tareas públicas o generales
+    const query = "SELECT id, title, description, status, duration FROM tasks WHERE is_active = true ORDER BY created_at DESC";
+    try {
+      const { rows } = await db.query(query);
+      return rows;
+    } catch (error) {
+      console.error("Error al buscar tareas públicas", error);
       throw error;
     }
   },

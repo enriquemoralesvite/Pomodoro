@@ -1,5 +1,8 @@
 import { fetchWithAuth } from './apiClient';
 
+// Reemplazar API_URL con import.meta.env.PUBLIC_API_URL
+const API_URL = import.meta.env.PUBLIC_API_URL;
+
 // Función auxiliar para manejar errores comunes de la API.
 function getDefaultError(error) {
   console.error("Error en la API de tareas:", error);
@@ -13,16 +16,14 @@ function getDefaultError(error) {
  * Obtiene todas las tareas del usuario.
  * Utiliza fetchWithAuth para asegurar que la petición está autenticada.
  */
+// Usar fetchWithAuth con requireAuth = false para operaciones no protegidas
 export async function getTasks() {
   try {
-    const response = await fetchWithAuth("/tasks");
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Error al obtener las tareas: ${response.status} ${response.statusText} - ${errorText}`);
-    }
+    const response = await fetchWithAuth("/tasks", {}, false); // No requiere autenticación
     return await response.json();
   } catch (error) {
-    return getDefaultError(error);
+    console.error("Error al obtener tareas:", error);
+    return { success: false, error: error.toString() };
   }
 }
 

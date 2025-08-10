@@ -39,28 +39,34 @@ async function refreshAccessToken() {
 }
 
 // Realiza una petición a la API, manejando automáticamente la autenticación y el refresco de tokens.
-export async function fetchWithAuth(url, options = {}) {
-    let accessToken = localStorage.getItem("accessToken");
-    
-    console.log(`[fetchWithAuth] URL: ${API_URL}${url}`);
-    console.log(`[fetchWithAuth] Token: ${accessToken ? accessToken.substring(0, 10) + '...' : 'no token'}`);
-    console.log(`[fetchWithAuth] Method: ${options.method || 'GET'}`);
-    
-    if (!accessToken) {
-        console.error("[fetchWithAuth] No hay token de acceso disponible");
-        // Redirigir al login si no hay token
-        window.location.href = "/login";
-        return new Response(JSON.stringify({ success: false, error: "No hay token de acceso" }), {
-            status: 401,
-            headers: { 'Content-Type': 'application/json' }
-        });
+export async function fetchWithAuth(url, options = {}, requireAuth = true) {
+    const headers = options.headers || {};
+
+    if (requireAuth) {
+        let accessToken = localStorage.getItem("accessToken");
+        
+        console.log(`[fetchWithAuth] URL: ${API_URL}${url}`);
+        console.log(`[fetchWithAuth] Token: ${accessToken ? accessToken.substring(0, 10) + '...' : 'no token'}`);
+        console.log(`[fetchWithAuth] Method: ${options.method || 'GET'}`);
+        
+        if (!accessToken) {
+            console.error("[fetchWithAuth] No hay token de acceso disponible");
+            // Redirigir al login si no hay token
+            window.location.href = "/login";
+            return new Response(JSON.stringify({ success: false, error: "No hay token de acceso" }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        headers.Authorization = `Bearer ${accessToken}`;
     }
 
     // Configurar las cabeceras de la petición inicial.
     options.headers = {
         ...options.headers,
         "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
+        ...headers,
     };
 
     // Realizar la petición inicial.

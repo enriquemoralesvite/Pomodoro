@@ -2,16 +2,22 @@ const Task = require("../models/Task");
 
 exports.getAllTasks = async (req, res) => {
   try {
-    // El id del usuario se obtiene del token JWT verificado por el middleware
-    const tasks = await Task.findAllByUserId(req.user.id);
+    let tasks;
+
+    if (req.user && req.user.id) {
+      // Si el usuario está autenticado, obtener sus tareas
+      tasks = await Task.findAllByUserId(req.user.id);
+    } else {
+      // Si no está autenticado, obtener tareas públicas o generales
+      tasks = await Task.findAllPublic();
+    }
+
     res.json({ success: true, data: tasks });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        error: "Error del servidor al obtener las tareas",
-      });
+    res.status(500).json({
+      success: false,
+      error: "Error del servidor al obtener las tareas",
+    });
   }
 };
 
@@ -64,28 +70,23 @@ exports.getTaskById = async (req, res) => {
 exports.updateTask = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.id;
     const taskData = req.body;
 
-    const updatedTask = await Task.update(id, taskData, userId);
+    const updatedTask = await Task.update(id, taskData);
 
     if (!updatedTask) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          error: "Tarea no encontrada o no pertenece al usuario",
-        });
+      return res.status(404).json({
+        success: false,
+        error: "Tarea no encontrada",
+      });
     }
 
     res.json({ success: true, data: updatedTask });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        error: "Error del servidor al actualizar la tarea",
-      });
+    res.status(500).json({
+      success: false,
+      error: "Error del servidor al actualizar la tarea",
+    });
   }
 };
 
