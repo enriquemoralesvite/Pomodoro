@@ -8,6 +8,23 @@ import ConfirmDialog from "../components/ConfirmDialog.astro";
 import History from "../components/statistics/History.astro";
 ---
 
+<script>
+  const accessToken = localStorage.getItem("accessToken");
+  const userString = localStorage.getItem("user");
+  if (!accessToken || !userString) {
+    window.location.href = "/login";
+  } else {
+    try {
+      JSON.parse(userString);
+    } catch (e) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
+      window.location.href = "/login";
+    }
+  }
+</script>
+
 <Layout>
   <Header />
   <main
