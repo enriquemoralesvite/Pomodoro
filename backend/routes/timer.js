@@ -9,7 +9,7 @@ const {
 const authMiddleware = require('../middlewares/authMiddleware'); // Se importa el middleware de autenticación
 
 router.post('/', registerSession);      // POST /api/timer
-router.get('/stats', getStats);         // GET /api/timer/stats
+router.get('/stats', authMiddleware, getStats);  // GET /api/timer/stats (con autenticación)
 router.get('/config', getTimerConfig);  // GET /api/timer/config
 
 // Expone las estadísticas agregadas (pomodoros, descansos, tareas) para el usuario autenticado.

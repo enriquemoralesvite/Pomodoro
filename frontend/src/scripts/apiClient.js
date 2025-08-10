@@ -41,6 +41,20 @@ async function refreshAccessToken() {
 // Realiza una petición a la API, manejando automáticamente la autenticación y el refresco de tokens.
 export async function fetchWithAuth(url, options = {}) {
     let accessToken = localStorage.getItem("accessToken");
+    
+    console.log(`[fetchWithAuth] URL: ${API_URL}${url}`);
+    console.log(`[fetchWithAuth] Token: ${accessToken ? accessToken.substring(0, 10) + '...' : 'no token'}`);
+    console.log(`[fetchWithAuth] Method: ${options.method || 'GET'}`);
+    
+    if (!accessToken) {
+        console.error("[fetchWithAuth] No hay token de acceso disponible");
+        // Redirigir al login si no hay token
+        window.location.href = "/login";
+        return new Response(JSON.stringify({ success: false, error: "No hay token de acceso" }), {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
 
     // Configurar las cabeceras de la petición inicial.
     options.headers = {
@@ -50,17 +64,38 @@ export async function fetchWithAuth(url, options = {}) {
     };
 
     // Realizar la petición inicial.
-    let response = await fetch(`${API_URL}${url}`, options);
+    let response;
+    try {
+        console.log(`[fetchWithAuth] Realizando petición a ${API_URL}${url}`);
+        response = await fetch(`${API_URL}${url}`, options);
+        console.log(`[fetchWithAuth] Respuesta: ${response.status} ${response.statusText}`);
+    } catch (error) {
+        console.error(`[fetchWithAuth] Error en la petición: ${error.message}`);
+        return new Response(JSON.stringify({ success: false, error: error.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
 
     // Si la petición falla con un 401 (No Autorizado), el token de acceso puede haber expirado.
     if (response.status === 401) {
-        console.log("Token de acceso expirado. Intentando refrescar...");
+        console.log("[fetchWithAuth] Token de acceso expirado. Intentando refrescar...");
         const newAccessToken = await refreshAccessToken();
 
         if (newAccessToken) {
             // Si el token se refrescó con éxito, reintentar la petición original con el nuevo token.
+            console.log(`[fetchWithAuth] Token refrescado. Reintentando petición con nuevo token: ${newAccessToken.substring(0, 10)}...`);
             options.headers.Authorization = `Bearer ${newAccessToken}`;
-            response = await fetch(`${API_URL}${url}`, options);
+            try {
+                response = await fetch(`${API_URL}${url}`, options);
+                console.log(`[fetchWithAuth] Respuesta después de refrescar token: ${response.status} ${response.statusText}`);
+            } catch (error) {
+                console.error(`[fetchWithAuth] Error en la petición después de refrescar token: ${error.message}`);
+                return new Response(JSON.stringify({ success: false, error: error.message }), {
+                    status: 500,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
         }
     }
 

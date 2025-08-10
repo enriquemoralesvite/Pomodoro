@@ -24,3 +24,24 @@ export async function registerSession(sessionData) {
     return getDefaultError(error);
   }
 }
+
+
+//  * El siguiente script trae estadísticas de sesiones Pomodoro (work, short_break, long_break) 
+//  * agrupadas por fecha. 
+//  * @param {number} userId 
+//  * @returns {Promise<{ success: boolean, data: Array, error: any }>}
+ 
+export async function getTimerStats() {
+  try {
+    console.log("Solicitando estadísticas del temporizador...");
+    const response = await fetchWithAuth(`/timer/stats`);
+    if (!response.ok) {
+      const msg = await response.text();
+      throw new Error(`Status ${response.status} - ${msg}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error al obtener estadísticas de timer:", error);
+    return { success: false, data: [], error: error.toString() };
+  }
+}

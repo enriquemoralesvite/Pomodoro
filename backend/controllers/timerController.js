@@ -84,14 +84,10 @@ const registerSession = async (req, res) => {
 // 📊 Estadísticas por fecha y tipo de sesión
 const getStats = async (req, res) => {
   try {
-    const userId = req.query.userId;
-    if (!userId) {
-      return res.status(400).json({
-        data: null,
-        success: false,
-        error: 'userId es requerido'
-      });
-    }
+    // Obtener el ID del usuario del objeto req.user (establecido por authMiddleware)
+    const userId = req.user.id;
+    
+    // console.log('Obteniendo estadísticas para el usuario:', userId);
 
     const sessions = await query(
       `SELECT 
