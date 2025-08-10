@@ -1,9 +1,11 @@
 require('dotenv').config();
 const express = require('express');
+const app = express(); // ← ESTA LÍNEA ES LA QUE FALTABA
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 
-const app = express();
+
+
 const port = process.env.PORT || 3001;
 const timerRoutes = require('./routes/timer');
 const taskRoutes = require('./routes/taskRoutes');

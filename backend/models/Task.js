@@ -15,10 +15,16 @@ const Task = {
   },
 
   async findById(taskId, userId) {
-    const query =
-      "SELECT id, title, description, status, duration, is_active FROM tasks WHERE id = $1 AND user_id = $2";
+    let query, values;
+    if (userId) {
+      query = "SELECT id, title, description, status, duration, is_active, recurrent FROM tasks WHERE id = $1 AND user_id = $2";
+      values = [taskId, userId];
+    } else {
+      query = "SELECT id, title, description, status, duration, is_active, recurrent FROM tasks WHERE id = $1";
+      values = [taskId];
+    }
     try {
-      const { rows } = await db.query(query, [taskId, userId]);
+      const { rows } = await db.query(query, values);
       return rows[0];
     } catch (error) {
       console.error("Error al buscar la tarea por id", error);
@@ -88,10 +94,16 @@ const Task = {
 
   async delete(taskId, userId) {
     // Se implementa el borrado lógico cambiando is_active a false, según feedback.
-    const query =
-      "UPDATE tasks SET is_active = false WHERE id = $1 AND user_id = $2 RETURNING id";
+    let query, values;
+    if (userId) {
+      query = "UPDATE tasks SET is_active = false WHERE id = $1 AND user_id = $2 RETURNING id";
+      values = [taskId, userId];
+    } else {
+      query = "UPDATE tasks SET is_active = false WHERE id = $1 RETURNING id";
+      values = [taskId];
+    }
     try {
-      const { rows } = await db.query(query, [taskId, userId]);
+      const { rows } = await db.query(query, values);
       return rows[0];
     } catch (error) {
       console.error("Error al eliminar la tarea", error);

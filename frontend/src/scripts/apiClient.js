@@ -39,7 +39,7 @@ async function refreshAccessToken() {
 }
 
 // Realiza una petición a la API, manejando automáticamente la autenticación y el refresco de tokens.
-export async function fetchWithAuth(url, options = {}, requireAuth = true) {
+export async function fetchWithAuth(url, options = {}, requireAuth = false) {
     const headers = options.headers || {};
 
     if (requireAuth) {
@@ -51,7 +51,7 @@ export async function fetchWithAuth(url, options = {}, requireAuth = true) {
         
         if (!accessToken) {
             console.error("[fetchWithAuth] No hay token de acceso disponible");
-            // Redirigir al login si no hay token
+            // Redirigir al login si no hay token y se requiere autenticación
             window.location.href = "/login";
             return new Response(JSON.stringify({ success: false, error: "No hay token de acceso" }), {
                 status: 401,
@@ -60,6 +60,10 @@ export async function fetchWithAuth(url, options = {}, requireAuth = true) {
         }
 
         headers.Authorization = `Bearer ${accessToken}`;
+    } else {
+        // Si no se requiere autenticación, solo hacer log
+        console.log(`[fetchWithAuth] URL: ${API_URL}${url} (sin autenticación)`);
+        console.log(`[fetchWithAuth] Method: ${options.method || 'GET'}`);
     }
 
     // Configurar las cabeceras de la petición inicial.
