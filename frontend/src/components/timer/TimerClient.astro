@@ -115,8 +115,16 @@ import { Icon } from 'astro-icon/components'
     const { success, error } = await registerSession(sessionData);
 
     if (success) {
-      // Si la sesión se registra con éxito, se dispara un evento para actualizar las estadísticas.
-      document.dispatchEvent(new CustomEvent('stats-updated'));
+      // Actualizar las estadísticas directamente para evitar bucles infinitos
+      if (window.updateStatisticsFromExternal) {
+        window.updateStatisticsFromExternal();
+      }
+      
+      // También disparar evento específico para el gráfico
+      document.dispatchEvent(new CustomEvent('pomodoro-completed', {
+        detail: { sessionType: currentSessionType, duration: DURATIONS[currentSessionType] }
+      }));
+      
       alert(`${timerTitle.textContent} finished!`);
     } else {
       console.error("Error registering session:", error);

@@ -1,150 +1,171 @@
----
----
-
+<!-- History.astro -->
 <div class="w-full h-64 flex flex-col items-center justify-center">
   <canvas id="history" width="400" height="200"></canvas>
-  <p id="chart-status" class="text-white mt-2"></p>
+  <p id="chart-status" class="text-white mt-2">Cargando estadísticas...</p>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
 
 <script type="module" client:load>
-  async function renderPomodoroHistory() {
-    const canvas = document.getElementById("history");
-    const statusElement = document.getElementById("chart-status");
+  // Variables globales
+  let chartInstance = null;
+  const completedTasks = new Map(); // Usamos Map para mejor manejo de tareas
 
-    function updateStatus(message, isError = false) {
-      if (statusElement) {
-        statusElement.textContent = message;
-        statusElement.style.color = isError ? "red" : "white";
-        console.log(message);
+  // Función para obtener los días de la semana en orden correcto
+  function getWeekDays() {
+    const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+    const today = new Date();
+    const currentDay = today.getDay(); // 0 (Domingo) a 6 (Sábado)
+    
+    // Reordenamos para que el día actual esté al final
+    const reorderedDays = [];
+    for (let i = currentDay + 1; i < currentDay + 8; i++) {
+      reorderedDays.push(days[i % 7]);
+    }
+    
+    return reorderedDays;
+  }
+
+  // Función para obtener el índice del día en el gráfico
+  function getDayIndex(date) {
+    const today = new Date();
+    const taskDate = new Date(date);
+    const diffTime = today - taskDate;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    // El día actual es el índice 6 (última posición)
+    return 6 - diffDays;
+  }
+
+  // Inicializar gráfico
+  function initChart() {
+    const ctx = document.getElementById('history').getContext('2d');
+    const days = getWeekDays();
+    
+    chartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: days,
+        datasets: [{
+          data: Array(7).fill(0),
+          backgroundColor: '#7f878c',
+          borderRadius: 5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: '#000000' }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: { 
+              stepSize: 1,
+              color: '#000000'
+            },
+            grid: { display: false }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) => `${context.parsed.y} ${context.parsed.y === 1 ? 'actividad' : 'actividades'}`
+            }
+          }
+        }
       }
-    }
+    });
+  }
 
-    if (!canvas) {
-      updateStatus("Error: Canvas element not found", true);
-      console.error("CRITICAL: Canvas element with id 'history' not found in the DOM.");
-      return;
-    }
-
-    updateStatus("Loading chart...");
-
+  // Actualizar datos del gráfico
+  async function updateChart() {
+    const statusElement = document.getElementById('chart-status');
+    
     try {
+      // 1. Obtener datos de la API
       const { getTimerStats } = await import('/src/scripts/timerApi.js');
-      const userString = localStorage.getItem("user");
-
-      if (!userString) {
-        updateStatus("Error: User not found in localStorage", true);
-        console.error("CRITICAL: User not found in localStorage.");
-        return;
-      }
-
-      const user = JSON.parse(userString);
-      if (!user.id) {
-        updateStatus("Error: User ID not found", true);
-        console.error("CRITICAL: User ID not found in parsed user object.");
-        return;
-      }
-
       const response = await getTimerStats();
-      const { success, data, error } = response;
-
-      if (!success || error) {
-        updateStatus(`API Error: ${error}`, true);
-        console.error("API Error:", error);
-        return;
+      
+      if (!response?.success) {
+        throw new Error(response?.error || 'Error al obtener estadísticas');
       }
 
-      if (!Array.isArray(data) || data.length === 0) {
-        updateStatus("No statistics data to display");
-        const ctx = canvas.getContext("2d");
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.font = "16px Arial";
-        ctx.fillStyle = "black";
-        ctx.textAlign = "center";
-        ctx.fillText("No statistics data to display.", canvas.width / 2, canvas.height / 2);
-        return;
+      // 2. Procesar datos
+      const newData = Array(7).fill(0);
+      
+      // Procesar pomodoros
+      if (Array.isArray(response.data)) {
+        response.data
+          .filter(session => session.session_type === 'work')
+          .forEach(session => {
+            const dayIndex = getDayIndex(session.session_date);
+            if (dayIndex >= 0 && dayIndex < 7) {
+              newData[dayIndex] += parseInt(session.count) || 0;
+            }
+          });
       }
-
-      const countsByDate = {};
-      data
-        .filter(i => i.session_type === "work")
-        .forEach(({ session_date, count }) => {
-          const key = new Date(session_date).toISOString().split("T")[0];
-          countsByDate[key] = parseInt(count, 10) || 0;
-        });
-
-      const labels = [];
-      const values = [];
-      const today = new Date();
-
-      for (let i = 6; i >= 0; i--) {
-        const date = new Date(today);
-        date.setDate(today.getDate() - i);
-        labels.push(date.toLocaleDateString("en-US", { weekday: "short" }).slice(0, 3));
-        const isoKey = date.toISOString().split("T")[0];
-        values.push(countsByDate[isoKey] || 0);
-      }
-
-      const ctx = canvas.getContext("2d");
-      const oldChart = Chart.getChart(canvas);
-      if (oldChart) {
-        oldChart.destroy();
-      }
-
-      new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels,
-          datasets: [{
-            data: values,
-            backgroundColor: "#7f878c", // el color de las barras
-            borderRadius: 5,
-          }],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            x: {
-              grid: { display: false },
-              ticks: { color: "#000000" },
-            },
-            y: {
-              beginAtZero: true,
-              ticks: { stepSize: 1, color: "#000000" },
-              grid: { display: false },
-            },
-          },
-          plugins: {
-            legend: { display: false },
-            datalabels: {
-              anchor: "center",
-              align: "center",
-              formatter: value => value,
-              color: "#000000", // Cambié el color del texto dentro de las barras
-              font: { weight: "bold", size: 14 },
-            },
-          },
-        },
+      
+      // Procesar tareas completadas
+      completedTasks.forEach(date => {
+        const dayIndex = getDayIndex(date);
+        if (dayIndex >= 0 && dayIndex < 7) {
+          newData[dayIndex] += 1;
+        }
       });
 
-      updateStatus("");
-    } catch (e) {
-      console.error("CRITICAL ERROR: Failed to render chart.", e);
-      updateStatus(`Error rendering chart: ${e.message}`, true);
+      // 3. Actualizar gráfico
+      if (chartInstance) {
+        chartInstance.data.datasets[0].data = newData;
+        chartInstance.update();
+      }
 
-      if (canvas) {
-        const ctx = canvas.getContext("2d");
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.font = "16px Arial";
-        ctx.fillStyle = "red";
-        ctx.textAlign = "center";
-        ctx.fillText("Error loading API data.", canvas.width / 2, canvas.height / 2);
+      if (statusElement) {
+        statusElement.textContent = '';
+      }
+    } catch (error) {
+      console.error('Error al actualizar gráfico:', error);
+      if (statusElement) {
+        statusElement.textContent = 'Error al cargar datos';
+        statusElement.style.color = 'red';
       }
     }
   }
 
-  document.addEventListener("astro:page-load", renderPomodoroHistory);
-  document.addEventListener("DOMContentLoaded", renderPomodoroHistory);
+  // Manejar tarea completada
+  function handleTaskCompleted(event) {
+    if (event.detail?.taskId) {
+      const date = event.detail.date || new Date().toISOString().split('T')[0];
+      completedTasks.set(event.detail.taskId, date);
+      updateChart();
+    }
+  }
+
+  // Manejar tarea no completada
+  function handleTaskUncompleted(event) {
+    if (event.detail?.taskId) {
+      completedTasks.delete(event.detail.taskId);
+      updateChart();
+    }
+  }
+
+  // Inicialización
+  document.addEventListener('DOMContentLoaded', () => {
+    initChart();
+    updateChart();
+  });
+
+  // Event listeners
+  document.addEventListener('stats-updated', updateChart);
+  document.addEventListener('pomodoro-completed', updateChart);
+  document.addEventListener('task-completed', handleTaskCompleted);
+  document.addEventListener('task-uncompleted', handleTaskUncompleted);
+
+  // Limpiar al hacer logout
+  document.addEventListener('logout', () => {
+    completedTasks.clear();
+  });
 </script>

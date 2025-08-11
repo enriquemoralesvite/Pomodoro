@@ -2,7 +2,6 @@ import { deleteTask, editTask } from "./tasksApi";
 import * as dialog from "./dialog.js";
 import { getTasks } from "./tasksApi.js";
 
-
 export function createTask(task) {
   const { id, title, duration, status, recurrent } = task;
   const li = document.createElement("li");
@@ -14,11 +13,9 @@ export function createTask(task) {
   li.dataset.status = status;
   li.dataset.recurrent = recurrent;
 
-  li.className =
-    "group task-item flex justify-between px-2 pb-2 pt-2 hover:bg-white/30 rounded-lg gap-2";
+  li.className = "group task-item flex justify-between px-2 pb-2 pt-2 hover:bg-white/30 rounded-lg gap-2";
   li.innerHTML = getTaskHtml(title, duration, recurrent);
 
-  // Custom Event: Emitir evento personalizado al hacer clic en la tarea
   li.addEventListener("click", () => {
     document.dispatchEvent(
       new CustomEvent("task:selected", {
@@ -50,9 +47,7 @@ function getTaskHtml(title, duration, recurrent) {
       <span class="taskTitle line-clamp-2 break-all">${title} </span>
       <input type="text" name="title" class="inputTitle hidden" />
 
-      <span class="taskDurationContainer flex text-xs text-gray-500"
-        >
-
+      <span class="taskDurationContainer flex text-xs text-gray-500">
         ${
           recurrent
             ? `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><g fill="none">
@@ -61,7 +56,6 @@ function getTaskHtml(title, duration, recurrent) {
         </g></svg> `
             : ""
         }     
-
         <span class="taskDuration">${hours}</span>
         <input type="number" name="duration-hours" class="inputDuration min-w-0 w-full text-center hidden" />
         h:
@@ -75,7 +69,8 @@ function getTaskHtml(title, duration, recurrent) {
   <!-- Acciones -->
   <div class="task-actions flex gap-2 md:opacity-0 group-hover:opacity-100">
     <button class="btnEdit text-black/80 text-xl">
-      <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M4 21q-.425 0-.712-.288T3 20v-2.425q0-.4.15-.763t.425-.637L16.2 3.575q.3-.275.663-.425t.762-.15t.775.15t.65.45L20.425 5q.3.275.437.65T21 6.4q0 .4-.138.763t-.437.662l-12.6 12.6q-.275.275-.638.425t-.762.15zM17.6 7.8L19 6.4L17.6 5l-1.4 1.4z"/></svg>    </button>
+      <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M4 21q-.425 0-.712-.288T3 20v-2.425q0-.4.15-.763t.425-.637L16.2 3.575q.3-.275.663-.425t.762-.15t.775.15t.65.45L20.425 5q.3.275.437.65T21 6.4q0 .4-.138.763t-.437.662l-12.6 12.6q-.275.275-.638.425t-.762.15zM17.6 7.8L19 6.4L17.6 5l-1.4 1.4z"/></svg>
+    </button>
     <button class="btnDelete text-black/80 text-xl">
       <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M7 21q-.825 0-1.412-.587T5 19V6q-.425 0-.712-.288T4 5t.288-.712T5 4h4q0-.425.288-.712T10 3h4q.425 0 .713.288T15 4h4q.425 0 .713.288T20 5t-.288.713T19 6v13q0 .825-.587 1.413T17 21zm3-4q.425 0 .713-.288T11 16V9q0-.425-.288-.712T10 8t-.712.288T9 9v7q0 .425.288.713T10 17m4 0q.425 0 .713-.288T15 16V9q0-.425-.288-.712T14 8t-.712.288T13 9v7q0 .425.288.713T14 17"/></svg>
     </button>
@@ -105,8 +100,6 @@ function bindSaveTaskAction(element) {
     const durationHours = +inputDurationHours.value;
     const durationMin = +inputDurationMin.value;
     const duration = durationMin + durationHours * 60;
-    // Se pasa el ID por separado y los datos de la tarea en un objeto, como espera la API.
-    // Antes se pasaba el objeto `element.dataset` completo, lo que causaba un error.
     const { success, error } = await editTask(element.dataset.id, {
       title,
       duration,
@@ -125,7 +118,6 @@ function bindSaveTaskAction(element) {
   });
 }
 
-//
 function bindEditTaskAction(element) {
   const {
     btnEdit,
@@ -188,35 +180,60 @@ function bindUpdateTaskStatus(element) {
   if (element.dataset.status === "completed") {
     checkbox.checked = true;
     taskTitle.classList.add(...styles);
-    actions.classList.toggle("invisible");
+    actions.classList.add("invisible");
   }
 
   checkbox.addEventListener("change", async () => {
-    checkbox.disabled = true; // Bloquea el checkbox
-    let success = false;
-    if (checkbox.checked) {
-      taskTitle.classList.add(...styles);
-      actions.classList.toggle("invisible");
-      const response = await editTask(element.dataset.id, {
-        status: "completed",
-      });
-      success = response.success;
-    } else {
-      taskTitle.classList.remove(...styles);
-      actions.classList.toggle("invisible");
-      const response = await editTask(element.dataset.id, {
-        status: "pending",
-      });
-      success = response.success;
-    }
+    checkbox.disabled = true;
+    const taskId = element.dataset.id;
+    const isCompleted = checkbox.checked;
+    const completionDate = new Date().toISOString().split('T')[0];
 
-    if (success) {
-      // Se dispara un evento global para notificar a otros componentes (ej. estadísticas)
-      // que los datos han cambiado y necesitan refrescarse, sin acoplar los componentes.
-      document.dispatchEvent(new CustomEvent("stats-updated"));
-    }
+    try {
+      // Actualizar estado en la API
+      const response = await editTask(taskId, {
+        status: isCompleted ? "completed" : "pending"
+      });
 
-    checkbox.disabled = false; // Desbloquea el checkbox
+      if (response.success) {
+        // Actualizar UI
+        if (isCompleted) {
+          taskTitle.classList.add(...styles);
+          actions.classList.add("invisible");
+          // Disparar evento de completado con fecha
+          document.dispatchEvent(new CustomEvent('task-completed', {
+            detail: { 
+              taskId: taskId,
+              date: completionDate,
+              status: "completed"
+            }
+          }));
+        } else {
+          taskTitle.classList.remove(...styles);
+          actions.classList.remove("invisible");
+          // Disparar evento de descompletado
+          document.dispatchEvent(new CustomEvent('task-uncompleted', {
+            detail: { 
+              taskId: taskId,
+              status: "pending"
+            }
+          }));
+        }
+
+        // Actualizar estadísticas generales
+        if (window.updateStatisticsFromExternal) {
+          window.updateStatisticsFromExternal();
+        }
+      } else {
+        console.error("Error updating task status:", response.error);
+        checkbox.checked = !isCompleted; // Revertir el cambio visual
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      checkbox.checked = !isCompleted; // Revertir el cambio visual
+    } finally {
+      checkbox.disabled = false;
+    }
   });
 }
 
