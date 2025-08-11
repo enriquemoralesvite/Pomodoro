@@ -53,8 +53,8 @@ import { Icon } from "astro-icon/components";
   import { registerSession } from "/src/scripts/timerApi.js";
 
   // === Audio de alarma ===
-  const alarm = new Audio('/sounds/alarm1.mp3'); // ruta desde /public
-  alarm.preload = 'auto';
+  const alarm = new Audio("/sounds/alarm2.mp3"); // ruta desde /public
+  alarm.preload = "auto";
   alarm.volume = 0.7;
   alarm.loop = false; // o true si quieres que suene en bucle
   let alarmUnlocked = false;
@@ -126,7 +126,7 @@ import { Icon } from "astro-icon/components";
       alarm.currentTime = 0;
       await alarm.play();
     } catch (error) {
-      console.warn('No se pudo reproducir la alarma:', error);
+      console.warn("No se pudo reproducir la alarma:", error);
     }
 
     // Al finalizar el temporizador, se registra la sesión en el backend.
@@ -181,7 +181,8 @@ import { Icon } from "astro-icon/components";
     if (!isPaused) {
       // Desbloquear audio en primer click
       if (!alarmUnlocked) {
-        alarm.play()
+        alarm
+          .play()
           .then(() => {
             alarm.pause();
             alarm.currentTime = 0;
