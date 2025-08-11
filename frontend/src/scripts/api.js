@@ -23,16 +23,11 @@ export async function fetchApi(endpoint, options = {}) {
   try {
     const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
 
-    // Si la respuesta no es JSON, response.json() fallará y se irá al catch.
-    // Esto es común en errores 500 que devuelven HTML o texto plano.
+
     const data = await response.json();
 
     if (!response.ok) {
-      console.error(`Error de API en ${endpoint}:`, {
-        status: response.status,
-        statusText: response.statusText,
-        errorBody: data
-      });
+
       return { success: false, error: data.error || response.statusText };
     }
 

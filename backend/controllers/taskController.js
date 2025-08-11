@@ -24,7 +24,7 @@ exports.getAllTasks = async (req, res) => {
 exports.createTask = async (req, res) => {
   try {
     const { title, duration, recurrent } = req.body;
-    const userId = req.user ? req.user.id : null; // ID del usuario desde el token si existe
+    const userId = req.user.id; // ID del usuario desde el token
 
     if (!title || !duration) {
       return res
@@ -47,7 +47,7 @@ exports.createTask = async (req, res) => {
 exports.getTaskById = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user ? req.user.id : null;
+    const userId = req.user.id;
     const task = await Task.findById(id, userId);
 
     if (!task) {
@@ -93,7 +93,7 @@ exports.updateTask = async (req, res) => {
 exports.deleteTask = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user ? req.user.id : null;
+    const userId = req.user.id;
 
     const deletedTask = await Task.delete(id, userId);
 
@@ -102,7 +102,7 @@ exports.deleteTask = async (req, res) => {
         .status(404)
         .json({
           success: false,
-          error: "Tarea no encontrada",
+          error: "Tarea no encontrada o no pertenece al usuario",
         });
     }
 

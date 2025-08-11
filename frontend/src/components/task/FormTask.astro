@@ -121,8 +121,9 @@
           }
           document.getElementById("task-list").appendChild(element);
           resetForm();
+          document.dispatchEvent(new CustomEvent("task:added", { detail: task }));
         } else {
-          console.error('Error al crear la tarea:', error);
+          resetForm();
           alert(`Error al crear la tarea: ${error}`);
         }
       } catch (err) {

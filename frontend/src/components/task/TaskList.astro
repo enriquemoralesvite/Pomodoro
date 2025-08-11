@@ -64,7 +64,11 @@ import FormTask from "./FormTask.astro";
     btnOpenFormTask.classList.toggle("formOpen");
   });
 
-  const { data, success, error } = await getTasks();
+  const { data, success, error } = await getTasks(true);
+  console.log("📦 Tareas recibidas:", data);
+  console.log("✅ success:", success);
+  console.log("❌ error:", error);
+
   if (success) {
     // Render tasks
     data.forEach((task) => {

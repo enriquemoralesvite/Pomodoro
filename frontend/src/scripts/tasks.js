@@ -1,5 +1,7 @@
 import { deleteTask, editTask } from "./tasksApi";
 import * as dialog from "./dialog.js";
+import { getTasks } from "./tasksApi.js";
+
 
 export function createTask(task) {
   const { id, title, duration, status, recurrent } = task;
@@ -261,4 +263,22 @@ export function addTaskDatalistOption(title) {
   const listOption = document.createElement("option");
   listOption.value = title;
   document.getElementById("title-datalist").appendChild(listOption);
+}
+
+export async function loadTasks() {
+  const { success, data, error } = await getTasks();
+
+  if (success) {
+    const taskList = document.getElementById("task-list");
+    taskList.innerHTML = "";
+
+    data.forEach((task) => {
+      const taskElement = createTask(task);
+      taskList.appendChild(taskElement);
+    });
+
+    console.log(`✅ Se cargaron ${data.length} tareas`);
+  } else {
+    console.error("❌ Error al cargar tareas:", error);
+  }
 }

@@ -17,15 +17,16 @@ function getDefaultError(error) {
  * Utiliza fetchWithAuth para asegurar que la petición está autenticada.
  */
 // Usar fetchWithAuth con requireAuth = false para operaciones no protegidas
-export async function getTasks() {
+export async function getTasks(requireAuth = true) {
   try {
-    const response = await fetchWithAuth("/tasks", {}, false); // No requiere autenticación
+    const response = await fetchWithAuth("/tasks", {}, requireAuth);
     return await response.json();
   } catch (error) {
     console.error("Error al obtener tareas:", error);
     return { success: false, error: error.toString() };
   }
 }
+
 
 /**
  * Agrega una nueva tarea.
