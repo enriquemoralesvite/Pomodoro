@@ -1,4 +1,4 @@
-import { fetchWithAuth } from './apiClient';
+import { fetchWithAuth } from "./apiClient";
 
 // Función auxiliar para manejar errores comunes de la API.
 function getDefaultError(error) {
@@ -18,7 +18,9 @@ export async function getTasks() {
     const response = await fetchWithAuth("/tasks");
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Error al obtener las tareas: ${response.status} ${response.statusText} - ${errorText}`);
+      throw new Error(
+        `Error al obtener las tareas: ${response.status} ${response.statusText} - ${errorText}`
+      );
     }
     return await response.json();
   } catch (error) {
@@ -85,7 +87,27 @@ export async function getStatistics() {
     const response = await fetchWithAuth("/timer/statistics");
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Error al obtener las estadísticas: ${response.status} ${response.statusText} - ${errorText}`);
+      throw new Error(
+        `Error al obtener las estadísticas: ${response.status} ${response.statusText} - ${errorText}`
+      );
+    }
+    return await response.json();
+  } catch (error) {
+    return getDefaultError(error);
+  }
+}
+
+/**
+ * Obtiene las estadísticas de las tareas compeltadas semanales.
+ */
+export async function getWeeklyStatistics() {
+  try {
+    const response = await fetchWithAuth("/timer/statistics/weekly");
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Error al obtener las estadísticas: ${response.status} ${response.statusText} - ${errorText}`
+      );
     }
     return await response.json();
   } catch (error) {
