@@ -1,86 +1,128 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro</title>
-    <link href="/src/styles/global.css" rel="stylesheet">
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #f0f4f8;
-        }
-    </style>
-</head>
-<body>
-    <div class="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
-        <h2 class="mb-6 text-3xl font-bold text-center text-gray-800">Crear Cuenta</h2>
+---
+import Layout from "../layouts/Layout.astro";
+import image from "../assets/login.png";
+import Header from "../components/login/Header.astro";
+---
+
+<Layout>
+  <Header />
+
+  <div class="h-screen flex justify-center items-center">
+    <div
+      class="flex justify-center items-center h-screen w-full md:w-1/2 lg:h-2/3 lg:w-2/3 m-4 rounded-lg overflow-hidden"
+    >
+      <!--PomoTask App Image -->
+      <div class="flex-1 hidden lg:block lg:h-full">
+        <img src={image.src} class="h-full" alt="app-pomotask-image" />
+      </div>
+
+      <!-- Register Form -->
+      <div
+        id="login-form-container"
+        class="flex-1 h-3/5 lg:h-full p-8 bg-white/60 rounded-lg lg:rounded-none shadow-lg flex flex-col justify-center"
+      >
+        <h2 class="mb-6 text-3xl font-bold text-center text-gray-800">
+          Create Account
+        </h2>
         <form id="registerForm" class="space-y-4">
-            <div>
-                <label for="username" class="block text-sm font-medium text-gray-700">Nombre de Usuario</label>
-                <input type="text" id="username" name="username" required
-                       class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-            </div>
-            <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
-                <input type="email" id="email" name="email" required
-                       class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-            </div>
-            <div>
-                <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
-                <input type="password" id="password" name="password" required
-                       class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-            </div>
-            <button type="submit"
-                    class="flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                Registrarse
-            </button>
+          <div>
+            <label
+              for="username"
+              class="block text-sm font-medium text-gray-700">Username</label
+            >
+            <input
+              type="text"
+              id="username"
+              name="username"
+              required
+              class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700"
+              >Email</label
+            >
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
+          <div>
+            <label
+              for="password"
+              class="block text-sm font-medium text-gray-700">Password</label
+            >
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
+          <button
+            type="submit"
+            class="flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-blue-600/90 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Register
+          </button>
         </form>
         <p class="mt-4 text-sm text-center text-gray-600">
-            ¿Ya tienes una cuenta? <a href="/login" class="font-medium text-indigo-600 hover:text-indigo-500">Inicia Sesión</a>
+          Already have an account? <a
+            href="/login"
+            class="font-medium text-blue-600 hover:text-blue-700">Log in</a
+          >
         </p>
         <div id="message" class="mt-4 text-sm font-medium text-center"></div>
+      </div>
     </div>
 
     <script type="module">
-        document.getElementById('registerForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
+      document
+        .getElementById("registerForm")
+        .addEventListener("submit", async (event) => {
+          event.preventDefault();
 
-            const username = document.getElementById('username').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const messageDiv = document.getElementById('message');
+          const username = document.getElementById("username").value;
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+          const messageDiv = document.getElementById("message");
 
-            try {
-                const response = await fetch('http://localhost:3001/api/auth/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username, email, password }),
-                });
+          try {
+            const response = await fetch(
+              "http://localhost:3001/api/auth/register",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ username, email, password }),
+              }
+            );
 
-                const data = await response.json();
+            const data = await response.json();
 
-                if (response.ok) {
-                    messageDiv.textContent = data.message;
-                    messageDiv.className = 'mt-4 text-center text-sm font-medium text-green-600';
-                    document.getElementById('registerForm').reset();
-                    window.location.href = '/login';
-                } else {
-                    messageDiv.textContent = data.message || 'Error en el registro.';
-                    messageDiv.className = 'mt-4 text-center text-sm font-medium text-red-600';
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                messageDiv.textContent = 'Error de conexión con el servidor.';
-                messageDiv.className = 'mt-4 text-center text-sm font-medium text-red-600';
+            if (response.ok) {
+              messageDiv.textContent = data.message;
+              messageDiv.className =
+                "mt-4 text-center text-sm font-medium text-green-600";
+              document.getElementById("registerForm").reset();
+              window.location.href = "/login";
+            } else {
+              messageDiv.textContent = data.message || "Error en el registro.";
+              messageDiv.className =
+                "mt-4 text-center text-sm font-medium text-red-600";
             }
+          } catch (error) {
+            console.error("Error:", error);
+            messageDiv.textContent = "Error de conexión con el servidor.";
+            messageDiv.className =
+              "mt-4 text-center text-sm font-medium text-red-600";
+          }
         });
     </script>
-</body>
-</html>
-
+  </div></Layout
+>
