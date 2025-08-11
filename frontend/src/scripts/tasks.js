@@ -166,7 +166,7 @@ function bindDeleteTaskAction(element) {
     dialog.confirm(deleteDialogId, deleteAction);
     dialog.open(
       deleteDialogId,
-      `¿Desea eliminar: "${element.dataset.title}" ?`
+      ` Are you sure you want to delete: "${element.dataset.title}" ?`
     );
   });
 }
