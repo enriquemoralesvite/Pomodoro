@@ -8,6 +8,23 @@ import ConfirmDialog from "../components/ConfirmDialog.astro";
 import History from "../components/statistics/History.astro";
 ---
 
+<script>
+  const accessToken = localStorage.getItem("accessToken");
+  const userString = localStorage.getItem("user");
+  if (!accessToken || !userString) {
+    window.location.href = "/login";
+  } else {
+    try {
+      JSON.parse(userString);
+    } catch (e) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
+      window.location.href = "/login";
+    }
+  }
+</script>
+
 <Layout>
   <Header />
   <main
@@ -23,7 +40,7 @@ import History from "../components/statistics/History.astro";
 
     <!-- Tasks Section -->
     <section
-      class="flex flex-col h-full backdrop-blur-lg shadow-lg bg-gray-400/10 p-6 rounded-lg lg:col-span-2 lg:row-span-2"
+      class="flex flex-col h-full lg:max-h-full max-h-120 backdrop-blur-lg shadow-lg bg-gray-400/10 p-6 rounded-lg lg:col-span-2 lg:row-span-2"
     >
       <h2 class="mb-4 text-xl font-semibold">Tasks List</h2>
       <TaskList />

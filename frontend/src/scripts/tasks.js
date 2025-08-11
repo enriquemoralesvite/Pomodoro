@@ -2,7 +2,7 @@ import { deleteTask, editTask } from "./tasksApi";
 import * as dialog from "./dialog.js";
 
 export function createTask(task) {
-  const { id, title, duration, status } = task;
+  const { id, title, duration, status, recurrent } = task;
   const li = document.createElement("li");
   li.id = id;
 
@@ -10,10 +10,21 @@ export function createTask(task) {
   li.dataset.title = title;
   li.dataset.duration = duration;
   li.dataset.status = status;
+  li.dataset.recurrent = recurrent;
 
   li.className =
     "group task-item flex justify-between px-2 pb-2 pt-2 hover:bg-white/30 rounded-lg gap-2";
-  li.innerHTML = getTaskHtml(title, duration);
+  li.innerHTML = getTaskHtml(title, duration, recurrent);
+
+  // Custom Event: Emitir evento personalizado al hacer clic en la tarea
+  li.addEventListener("click", () => {
+    document.dispatchEvent(
+      new CustomEvent("task:selected", {
+        detail: { id, nombre: title, duration, status },
+      })
+    );
+  });
+
   bindSaveTaskAction(li);
   bindEditTaskAction(li);
   bindCancelTaskAction(li);
@@ -23,17 +34,39 @@ export function createTask(task) {
   return li;
 }
 
-function getTaskHtml(title, duration) {
+function getTaskHtml(title, duration, recurrent) {
+  let hours = 0;
+  let minutes = duration;
+  if (duration > 59) {
+    hours = Math.floor(duration / 60);
+    minutes = duration - hours * 60;
+  }
   return `
-  <div class="flex items-center gap-3 w-full">
+  <div class="flex items-center gap-3 flex-1">
     <input type="checkbox" name="task-check" />
     <div class="flex flex-col w-full">
       <span class="taskTitle line-clamp-2 break-all">${title} </span>
       <input type="text" name="title" class="inputTitle hidden" />
 
-      <span class="taskDurationContainer flex text-xs text-gray-400">0/<span class="taskDuration">${duration}</span>
-      <input type="number" name="duration" class="inputDuration hidden" /> 
-      min.</span>
+      <span class="taskDurationContainer flex text-xs text-gray-500"
+        >
+
+        ${
+          recurrent
+            ? `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><g fill="none">
+        <path d="M0 0v24h24V0zm11.407 23.258l.011.002l.071.035l.02.004l.014-.004l.071-.036q.016-.004.024.006l.004.01l.017.428l-.005.02l-.01.013l-.104.074l-.015.004l-.012-.004l-.104-.074l-.012-.016l-.004-.017l.017-.427q.004-.016.016-.018Zm-.265-.113l.014.002l.184.093l.01.01l.003.011l-.018.43l-.005.012l-.008.008l-.201.092a.03.03 0 0 1-.029-.008l-.004-.014l.034-.614q.005-.018.02-.022m.715.002a.02.02 0 0 1 .027.006l.006.014l.034.614q-.001.018-.017.024l-.015-.002l-.201-.093l-.01-.008l-.003-.011l-.018-.43l.003-.012l.01-.01z"/>
+        <path fill="currentColor" d="M20 9.5a1.5 1.5 0 0 1 1.493 1.356L21.5 11v4a4.5 4.5 0 0 1-4.288 4.495L17 19.5H8.56l-.02.312l-.011.14c-.056.719-.749 1.17-1.331.865l-.314-.168l-.368-.209l-.203-.119l-.439-.269a21 21 0 0 1-.922-.617l-.385-.28l-.323-.245l-.137-.107c-.489-.39-.47-1.195.05-1.606l.136-.107l.32-.242l.38-.275l.438-.301a22 22 0 0 1 .714-.457l.426-.255l.375-.211l.316-.17c.577-.3 1.207.085 1.262.756l.038.565H17a1.5 1.5 0 0 0 1.493-1.356L18.5 15v-4A1.5 1.5 0 0 1 20 9.5m-3.198-6.317l.314.168l.368.209q.1.056.203.119l.439.269a21 21 0 0 1 .922.617l.385.28l.323.245l.137.107c.489.39.47 1.195-.05 1.606l-.136.107l-.32.242l-.38.275a22 22 0 0 1-1.152.758l-.426.255l-.375.211l-.316.17c-.577.3-1.207-.085-1.261-.756l-.04-.565H7A1.5 1.5 0 0 0 5.5 9v4a1.5 1.5 0 0 1-3 0V9A4.5 4.5 0 0 1 7 4.5h8.44l.031-.452c.056-.719.749-1.17 1.331-.865"/>
+        </g></svg> `
+            : ""
+        }     
+
+        <span class="taskDuration">${hours}</span>
+        <input type="number" name="duration-hours" class="inputDuration min-w-0 w-full text-center hidden" />
+        h:
+        <span class="taskDuration">${minutes}</span>
+        <input type="number" name="duration-minutes" class="inputDuration min-w-0 w-full text-center hidden" />
+         m
+      </span>
     </div>
   </div>
 
@@ -55,13 +88,21 @@ function getTaskHtml(title, duration) {
 }
 
 function bindSaveTaskAction(element) {
-  const { btnSave, inputTitle, inputDuration, taskTitle, taskDuration } =
-    getElements(element);
+  const {
+    btnSave,
+    inputTitle,
+    inputDurationHours,
+    inputDurationMin,
+    taskTitle,
+    taskDurationHours,
+    taskDurationMin,
+  } = getElements(element);
 
   btnSave.addEventListener("click", async () => {
     const title = inputTitle.value;
-    const duration = inputDuration.value;
-
+    const durationHours = +inputDurationHours.value;
+    const durationMin = +inputDurationMin.value;
+    const duration = durationMin + durationHours * 60;
     // Se pasa el ID por separado y los datos de la tarea en un objeto, como espera la API.
     // Antes se pasaba el objeto `element.dataset` completo, lo que causaba un error.
     const { success, error } = await editTask(element.dataset.id, {
@@ -72,7 +113,9 @@ function bindSaveTaskAction(element) {
       element.dataset.title = title;
       element.dataset.duration = duration;
       taskTitle.innerText = title;
-      taskDuration.innerText = duration;
+      taskDurationHours.innerText = durationHours;
+      taskDurationMin.innerText = durationMin;
+
       toggleElements(element);
     } else {
       console.log(error);
@@ -82,12 +125,21 @@ function bindSaveTaskAction(element) {
 
 //
 function bindEditTaskAction(element) {
-  const { btnEdit, inputTitle, inputDuration, taskTitle, taskDuration } =
-    getElements(element);
+  const {
+    btnEdit,
+    inputTitle,
+    inputDurationHours,
+    inputDurationMin,
+    taskTitle,
+    taskDurationHours,
+    taskDurationMin,
+  } = getElements(element);
 
   btnEdit.addEventListener("click", () => {
     inputTitle.value = taskTitle.innerText;
-    inputDuration.value = +taskDuration.innerText;
+    inputDurationHours.value = +taskDurationHours.innerText;
+    inputDurationMin.value = +taskDurationMin.innerText;
+
     element.classList.toggle("bg-white/50");
     toggleElements(element);
     inputTitle.focus();
@@ -114,7 +166,7 @@ function bindDeleteTaskAction(element) {
     dialog.confirm(deleteDialogId, deleteAction);
     dialog.open(
       deleteDialogId,
-      `¿Desea eliminar: "${element.dataset.title}" ?`
+      ` Are you sure you want to delete: "${element.dataset.title}" ?`
     );
   });
 }
@@ -143,19 +195,23 @@ function bindUpdateTaskStatus(element) {
     if (checkbox.checked) {
       taskTitle.classList.add(...styles);
       actions.classList.toggle("invisible");
-      const response = await editTask(element.dataset.id, { status: "completed" });
+      const response = await editTask(element.dataset.id, {
+        status: "completed",
+      });
       success = response.success;
     } else {
       taskTitle.classList.remove(...styles);
       actions.classList.toggle("invisible");
-      const response = await editTask(element.dataset.id, { status: "pending" });
+      const response = await editTask(element.dataset.id, {
+        status: "pending",
+      });
       success = response.success;
     }
 
     if (success) {
       // Se dispara un evento global para notificar a otros componentes (ej. estadísticas)
       // que los datos han cambiado y necesitan refrescarse, sin acoplar los componentes.
-      document.dispatchEvent(new CustomEvent('stats-updated'));
+      document.dispatchEvent(new CustomEvent("stats-updated"));
     }
 
     checkbox.disabled = false; // Desbloquea el checkbox
@@ -164,10 +220,12 @@ function bindUpdateTaskStatus(element) {
 
 function getElements(element) {
   const taskTitle = element.querySelector(".taskTitle");
-  const taskDuration = element.querySelector(".taskDuration");
+  const [taskDurationHours, taskDurationMin] =
+    element.querySelectorAll(".taskDuration");
 
   const inputTitle = element.querySelector(".inputTitle");
-  const inputDuration = element.querySelector(".inputDuration");
+  const [inputDurationHours, inputDurationMin] =
+    element.querySelectorAll(".inputDuration");
 
   const btnEdit = element.querySelector(".btnEdit");
   const btnDelete = element.querySelector(".btnDelete");
@@ -178,9 +236,11 @@ function getElements(element) {
 
   return {
     taskTitle,
-    taskDuration,
+    taskDurationHours,
+    taskDurationMin,
     inputTitle,
-    inputDuration,
+    inputDurationHours,
+    inputDurationMin,
     btnEdit,
     btnDelete,
     btnSave,
@@ -195,4 +255,10 @@ function toggleElements(element) {
   const elements = getElements(element);
 
   Object.values(elements).forEach((el) => el.classList.toggle("hidden"));
+}
+
+export function addTaskDatalistOption(title) {
+  const listOption = document.createElement("option");
+  listOption.value = title;
+  document.getElementById("title-datalist").appendChild(listOption);
 }
