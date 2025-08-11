@@ -10,78 +10,89 @@
   Chart.register(ChartDataLabels);
 
   const ctx = document.getElementById("history");
+  Chart.defaults.color = "#00000080"; // Sets default font color to black
+  const chart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: [],
+      datasets: [
+        {
+          data: [],
+          borderWidth: 0,
+          backgroundColor: "#ffffff60",
+          borderRadius: 5,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          grid: {
+            display: false,
+          },
+        },
+        y: {
+          beginAtZero: true,
+          grid: {
+            display: false,
+          },
+        },
+      },
+      plugins: {
+        legend: false,
+        datalabels: {
+          // Customize label appearance and content
+          anchor: "center", // Position of the label (e.g., 'end', 'start', 'center')
+          align: "center", // Alignment of the label relative to the anchor
+          formatter: function (value, context) {
+            return value; // Display the data value as the label
+          },
+          color: "#00000080", // Color of the label text
+          font: {
+            weight: "bold",
+          },
+        },
+      },
+    },
+  });
 
-  const { data, success, error } = await getWeeklyStatistics();
+  refreshHistory();
 
-  if (success) {
-    const tasksCompletedByDay = {};
+  document.addEventListener("stats-updated", () => {
+    refreshHistory();
+  });
 
-    data.forEach((row) => {
-      tasksCompletedByDay[row.day.split("T")[0]] = row.total;
-    });
+  async function refreshHistory() {
+    const { data, success, error } = await getWeeklyStatistics();
 
-    const statisticsData = [];
-    const labels = [];
+    if (success) {
+      const tasksCompletedByDay = {};
 
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
+      data.forEach((row) => {
+        tasksCompletedByDay[row.day.split("T")[0]] = row.total;
+      });
 
-      const dateKey = date.toISOString().split("T")[0];
-      statisticsData.push(tasksCompletedByDay[dateKey] || 0);
+      const statisticsData = [];
+      const labels = [];
 
-      const day = date
-        .toLocaleDateString("en-US", { weekday: "short" })
-        .slice(0, 3);
-      labels.push(day);
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+
+        const dateKey = date.toISOString().split("T")[0];
+        statisticsData.push(tasksCompletedByDay[dateKey] || 0);
+
+        const day = date
+          .toLocaleDateString("en-US", { weekday: "short" })
+          .slice(0, 3);
+        labels.push(day);
+      }
+
+      chart.data.labels = labels;
+      chart.data.datasets[0].data = statisticsData;
+      chart.update();
     }
-
-    Chart.defaults.color = "#00000080"; // Sets default font color to black
-    new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels,
-        datasets: [
-          {
-            data: statisticsData,
-            borderWidth: 0,
-            backgroundColor: "#ffffff60",
-            borderRadius: 5,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          x: {
-            grid: {
-              display: false,
-            },
-          },
-          y: {
-            beginAtZero: true,
-            grid: {
-              display: false,
-            },
-          },
-        },
-        plugins: {
-          legend: false,
-          datalabels: {
-            // Customize label appearance and content
-            anchor: "center", // Position of the label (e.g., 'end', 'start', 'center')
-            align: "center", // Alignment of the label relative to the anchor
-            formatter: function (value, context) {
-              return value; // Display the data value as the label
-            },
-            color: "#00000080", // Color of the label text
-            font: {
-              weight: "bold",
-            },
-          },
-        },
-      },
-    });
   }
 </script>
