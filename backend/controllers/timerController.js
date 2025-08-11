@@ -1,60 +1,66 @@
-const { query } = require('../config/db');
-const Task = require('../models/Task'); // Modelo de tareas
+const { query } = require("../config/db");
+const Task = require("../models/Task"); // Modelo de tareas
 
 // 📝 Registra una sesión Pomodoro
 const registerSession = async (req, res) => {
   try {
-    const { userId, taskId, sessionType, duration, recurrente = false } = req.body;
+    const {
+      userId,
+      taskId,
+      sessionType,
+      duration,
+      recurrente = false,
+    } = req.body;
 
     if (!userId || !sessionType || !duration) {
       return res.status(400).json({
         data: null,
         success: false,
-        error: 'userId, sessionType y duration son requeridos'
+        error: "userId, sessionType y duration son requeridos",
       });
     }
 
-    const validTypes = ['work', 'short_break', 'long_break'];
+    const validTypes = ["work", "short_break", "long_break"];
     if (!validTypes.includes(sessionType)) {
       return res.status(400).json({
         data: null,
         success: false,
-        error: 'sessionType debe ser work, short_break o long_break'
+        error: "sessionType debe ser work, short_break o long_break",
       });
     }
 
     const expectedDurations = {
       work: 25 * 60,
       short_break: 5 * 60,
-      long_break: 15 * 60
+      long_break: 15 * 60,
     };
 
     if (duration !== expectedDurations[sessionType]) {
       return res.status(400).json({
         data: null,
         success: false,
-        error: `La duración debe ser ${expectedDurations[sessionType]} segundos para ${sessionType}`
+        error: `La duración debe ser ${expectedDurations[sessionType]} segundos para ${sessionType}`,
       });
     }
 
-    if (typeof recurrente !== 'boolean') {
+    if (typeof recurrente !== "boolean") {
       return res.status(400).json({
         data: null,
         success: false,
-        error: "El campo 'recurrente' debe ser booleano"
+        error: "El campo 'recurrente' debe ser booleano",
       });
     }
 
     if (taskId) {
       const taskCheck = await query(
-        'SELECT id FROM tasks WHERE id = $1 AND user_id = $2',
+        "SELECT id FROM tasks WHERE id = $1 AND user_id = $2",
         [taskId, userId]
       );
       if (taskCheck.rows.length === 0) {
         return res.status(400).json({
           data: null,
           success: false,
-          error: 'Tarea no encontrada o no pertenece al usuario'
+          error: "Tarea no encontrada o no pertenece al usuario",
         });
       }
     }
@@ -69,14 +75,14 @@ const registerSession = async (req, res) => {
     res.status(201).json({
       data: { sessionId: result.rows[0].id },
       success: true,
-      error: null
+      error: null,
     });
   } catch (error) {
-    console.error('Error al registrar sesión:', error);
+    console.error("Error al registrar sesión:", error);
     res.status(500).json({
       data: null,
       success: false,
-      error: 'Error interno del servidor'
+      error: "Error interno del servidor",
     });
   }
 };
@@ -89,7 +95,7 @@ const getStats = async (req, res) => {
       return res.status(400).json({
         data: null,
         success: false,
-        error: 'userId es requerido'
+        error: "userId es requerido",
       });
     }
 
@@ -109,14 +115,14 @@ const getStats = async (req, res) => {
     res.status(200).json({
       data: sessions.rows,
       success: true,
-      error: null
+      error: null,
     });
   } catch (error) {
-    console.error('Error al obtener estadísticas:', error);
+    console.error("Error al obtener estadísticas:", error);
     res.status(500).json({
       data: null,
       success: false,
-      error: 'Error interno del servidor'
+      error: "Error interno del servidor",
     });
   }
 };
@@ -126,17 +132,17 @@ const getTimerConfig = (req, res) => {
   const timerConfig = {
     work: 25 * 60,
     short_break: 5 * 60,
-    long_break: 15 * 60
+    long_break: 15 * 60,
   };
 
   res.status(200).json({
     data: timerConfig,
     success: true,
-    error: null
+    error: null,
   });
 };
 
-// 📈 Estadísticas agregadas para el dashboard
+//  Estadísticas agregadas para el dashboard
 const getAggregatedStats = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -149,12 +155,13 @@ const getAggregatedStats = async (req, res) => {
       return parseInt(result.rows[0].count, 10);
     };
 
-    const [pomodorosCompleted, shortBreaks, longBreaks, tasksCompleted] = await Promise.all([
-      countSessions('work'),
-      countSessions('short_break'),
-      countSessions('long_break'),
-      Task.countCompletedByUserId(userId)
-    ]);
+    const [pomodorosCompleted, shortBreaks, longBreaks, tasksCompleted] =
+      await Promise.all([
+        countSessions("work"),
+        countSessions("short_break"),
+        countSessions("long_break"),
+        Task.countCompletedByUserId(userId),
+      ]);
 
     res.status(200).json({
       success: true,
@@ -162,14 +169,40 @@ const getAggregatedStats = async (req, res) => {
         pomodorosCompleted,
         shortBreaks,
         longBreaks,
-        tasksCompleted
-      }
+        tasksCompleted,
+      },
     });
   } catch (error) {
-    console.error('Error al obtener estadísticas agregadas:', error);
+    console.error("Error al obtener estadísticas agregadas:", error);
     res.status(500).json({
       success: false,
-      error: 'Error interno del servidor al obtener estadísticas'
+      error: "Error interno del servidor al obtener estadísticas",
+    });
+  }
+};
+
+const getWeeklyStatistics = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const result = await query(
+      `SELECT completed_at::date AS day,
+            COUNT(*) AS total
+     FROM tasks
+     WHERE user_id = $1
+       AND status = 'completed'
+       AND completed_at >= NOW() - INTERVAL '7 days'
+     GROUP BY completed_at::date
+     ORDER BY day ASC LIMIT 100`,
+      [userId]
+    );
+
+    return res.status(200).json({ success: true, data: result.rows });
+  } catch (error) {
+    console.error("Error al obtener estadísticas agregadas:", error);
+    res.status(500).json({
+      success: false,
+      error: "Error interno del servidor al obtener estadísticas",
     });
   }
 };
@@ -178,5 +211,6 @@ module.exports = {
   registerSession,
   getStats,
   getTimerConfig,
-  getAggregatedStats
+  getAggregatedStats,
+  getWeeklyStatistics,
 };
