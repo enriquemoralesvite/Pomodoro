@@ -52,6 +52,13 @@ import { Icon } from "astro-icon/components";
   import { editTask } from "/src/scripts/tasksApi.js";
   import { registerSession } from "/src/scripts/timerApi.js";
 
+  // === Audio de alarma ===
+  const alarm = new Audio('/sounds/alarm1.mp3'); // ruta desde /public
+  alarm.preload = 'auto';
+  alarm.volume = 0.7;
+  alarm.loop = false; // o true si quieres que suene en bucle
+  let alarmUnlocked = false;
+
   const timerTitle = document.getElementById("timer-title");
   const timerCountdown = document.getElementById("timer-countdown");
   const sessionTitle = document.getElementById("session-title");
@@ -87,6 +94,12 @@ import { Icon } from "astro-icon/components";
   }
 
   function setTimer(sessionType) {
+    // Detener alarma si está sonando
+    try {
+      alarm.pause();
+      alarm.currentTime = 0;
+    } catch {}
+
     clearInterval(nIntervId);
     nIntervId = null;
     isPaused = true;
@@ -107,6 +120,14 @@ import { Icon } from "astro-icon/components";
     clearInterval(nIntervId);
     nIntervId = null;
     isPaused = true;
+
+    // Reproducir alarma
+    try {
+      alarm.currentTime = 0;
+      await alarm.play();
+    } catch (error) {
+      console.warn('No se pudo reproducir la alarma:', error);
+    }
 
     // Al finalizar el temporizador, se registra la sesión en el backend.
     const sessionData = {
@@ -158,6 +179,16 @@ import { Icon } from "astro-icon/components";
 
     isPaused = !isPaused;
     if (!isPaused) {
+      // Desbloquear audio en primer click
+      if (!alarmUnlocked) {
+        alarm.play()
+          .then(() => {
+            alarm.pause();
+            alarm.currentTime = 0;
+            alarmUnlocked = true;
+          })
+          .catch(() => {});
+      }
       startTimer();
       btnText.textContent = "Pause";
     } else {
