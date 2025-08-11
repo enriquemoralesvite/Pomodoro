@@ -1,6 +1,6 @@
 ---
-import FormTimer from "./form-timer.astro"
-import { Icon } from 'astro-icon/components'
+import FormTimer from "./form-timer.astro";
+import { Icon } from "astro-icon/components";
 ---
 
 <section class="font-[work-sans] flex items-center flex-col gap-4 h-full">
@@ -48,7 +48,8 @@ import { Icon } from 'astro-icon/components'
   </div>
 </section>
 
-<script type="module" >
+<script type="module">
+  import { editTask } from "/src/scripts/tasksApi.js";
   import { registerSession } from "/src/scripts/timerApi.js";
 
   const timerTitle = document.getElementById("timer-title");
@@ -67,11 +68,11 @@ import { Icon } from 'astro-icon/components'
   // NOTA: Duraciones cortas para facilitar las pruebas de desarrollo.
   const DURATIONS = {
     //work: 25 * 60,
-    work: 1500,      // 5 segundos(probando)
+    work: 1500, // 5 segundos(probando)
     //short_break: 5 * 60,
-    short_break: 300,   // 3 segundos(probando) 
+    short_break: 300, // 3 segundos(probando)
     //long_break: 15 * 60,
-    long_break: 900,    // 4 segundos(probando)
+    long_break: 900, // 4 segundos(probando)
   };
 
   let currentSessionType = "work";
@@ -92,7 +93,9 @@ import { Icon } from 'astro-icon/components'
     currentSessionType = sessionType;
     totalSeconds = DURATIONS[sessionType];
 
-    const title = sessionType.replace("_", " ").replace(/\b\w/g, l => l.toUpperCase());
+    const title = sessionType
+      .replace("_", " ")
+      .replace(/\b\w/g, (l) => l.toUpperCase());
     timerTitle.textContent = title;
     updateDisplayTimer(totalSeconds);
     btnText.textContent = "Start";
@@ -109,14 +112,14 @@ import { Icon } from 'astro-icon/components'
     const sessionData = {
       sessionType: currentSessionType,
       duration: DURATIONS[currentSessionType],
-      userId: localStorage.getItem('userId'), // Se envía el ID del usuario.
+      userId: localStorage.getItem("userId"), // Se envía el ID del usuario.
     };
 
     const { success, error } = await registerSession(sessionData);
 
     if (success) {
       // Si la sesión se registra con éxito, se dispara un evento para actualizar las estadísticas.
-      document.dispatchEvent(new CustomEvent('stats-updated'));
+      document.dispatchEvent(new CustomEvent("stats-updated"));
       alert(`${timerTitle.textContent} finished!`);
     } else {
       console.error("Error registering session:", error);
@@ -140,6 +143,19 @@ import { Icon } from 'astro-icon/components'
   }
 
   function togglePomodoro() {
+    const statusInProgress = "in_progress";
+    const { id, status } = sessionTitle.dataset;
+    if (status !== statusInProgress) {
+      sessionTitle.dataset.status = statusInProgress;
+      editTask(id, { status: statusInProgress }).then(({ success }) => {
+        if (success) {
+          // Update li element
+          const task = document.querySelector(`li[data-id="${id}"]`);
+          task.dataset.status = statusInProgress;
+        }
+      });
+    }
+
     isPaused = !isPaused;
     if (!isPaused) {
       startTimer();
@@ -158,11 +174,13 @@ import { Icon } from 'astro-icon/components'
   btnReset.addEventListener("click", () => setTimer(currentSessionType));
   // Escuchar evento desde TaskList (evento emitido por createTask)
   document.addEventListener("task:selected", (e) => {
-    const { nombre, duration } = e.detail;
+    const { id, nombre, status } = e.detail;
 
     // Cambiar el texto del título de sesión
     if (sessionTitle) {
       sessionTitle.textContent = nombre;
+      sessionTitle.dataset.id = id;
+      sessionTitle.dataset.status = status;
     }
 
     // Reiniciar estado del botón
@@ -172,10 +190,7 @@ import { Icon } from 'astro-icon/components'
     btnText.textContent = "Start";
     iconPlay.classList.remove("hidden");
     iconPause.classList.add("hidden");
-
   });
-
-
 
   btnPomodoro.addEventListener("click", () => setTimer("work"));
   btnShortBreak.addEventListener("click", () => setTimer("short_break"));

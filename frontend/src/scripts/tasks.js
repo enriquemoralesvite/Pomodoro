@@ -20,7 +20,7 @@ export function createTask(task) {
   li.addEventListener("click", () => {
     document.dispatchEvent(
       new CustomEvent("task:selected", {
-        detail: { nombre: title, duration: duration },
+        detail: { id, nombre: title, duration, status },
       })
     );
   });
