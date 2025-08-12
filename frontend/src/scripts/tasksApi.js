@@ -114,3 +114,30 @@ export async function getWeeklyStatistics() {
     return getDefaultError(error);
   }
 }
+// En tasksApi.js - Agrega este console.log para depuración
+export async function getWeeklyStatistics() {
+  try {
+    const response = await fetchWithAuth("/timer/statistics/weekly");
+    
+    // Depuración crucial
+    console.log("Respuesta de weekly statistics:", {
+      status: response.status,
+      ok: response.ok
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Error ${response.status}: ${errorText}`
+      );
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
