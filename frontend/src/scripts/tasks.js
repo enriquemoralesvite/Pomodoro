@@ -183,10 +183,18 @@ function bindUpdateTaskStatus(element) {
   const styles = ["line-through", "text-gray-500", "italic"];
   const actions = element.querySelector(".task-actions");
 
+  function toggleActions() {
+    Array.from(actions.children).forEach((btn) => {
+      if (!btn.classList.contains("btnDelete")) {
+        btn.classList.toggle("invisible");
+      }
+    });
+  }
+
   if (element.dataset.status === "completed") {
     checkbox.checked = true;
     taskTitle.classList.add(...styles);
-    actions.classList.toggle("invisible");
+    toggleActions();
   }
 
   checkbox.addEventListener("change", async () => {
@@ -194,14 +202,14 @@ function bindUpdateTaskStatus(element) {
     let success = false;
     if (checkbox.checked) {
       taskTitle.classList.add(...styles);
-      actions.classList.toggle("invisible");
+      toggleActions();
       const response = await editTask(element.dataset.id, {
         status: "completed",
       });
       success = response.success;
     } else {
       taskTitle.classList.remove(...styles);
-      actions.classList.toggle("invisible");
+      toggleActions();
       const response = await editTask(element.dataset.id, {
         status: "pending",
       });
