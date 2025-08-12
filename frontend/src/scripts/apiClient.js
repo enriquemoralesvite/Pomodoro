@@ -11,7 +11,10 @@ async function refreshAccessToken() {
     }
 
     try {
-        const response = await fetch(`${API_URL}/auth/refresh-token`, {
+        // Construir URL correctamente para evitar doble slash
+        const refreshUrl = `${API_URL.replace(/\/$/, '')}/auth/refresh-token`;
+        
+        const response = await fetch(refreshUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ token: refreshToken }),
@@ -24,7 +27,7 @@ async function refreshAccessToken() {
 
         const { accessToken } = await response.json();
         localStorage.setItem("accessToken", accessToken); // Guardar el nuevo token
-        console.log("✅ Token de acceso refrescado exitosamente."); // Log para confirmar el refresco
+        console.log("✅ Token de acceso refrescado exitosamente.");
         return accessToken;
 
     } catch (error) {
@@ -40,6 +43,13 @@ async function refreshAccessToken() {
 
 // Realiza una petición a la API, manejando automáticamente la autenticación y el refresco de tokens.
 export async function fetchWithAuth(url, options = {}) {
+    // Normalizar URLs para evitar doble slash
+    const normalizeUrl = (base, endpoint) => {
+        const cleanBase = base.endsWith('/') ? base.slice(0, -1) : base;
+        const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+        return `${cleanBase}${cleanEndpoint}`;
+    };
+
     let accessToken = localStorage.getItem("accessToken");
 
     // Configurar las cabeceras de la petición inicial.
@@ -49,8 +59,12 @@ export async function fetchWithAuth(url, options = {}) {
         Authorization: `Bearer ${accessToken}`,
     };
 
+    // Construir URL completa con normalización
+    const fullUrl = normalizeUrl(API_URL, url);
+    console.log('Llamando a API:', fullUrl); // Para depuración
+
     // Realizar la petición inicial.
-    let response = await fetch(`${API_URL}${url}`, options);
+    let response = await fetch(fullUrl, options);
 
     // Si la petición falla con un 401 (No Autorizado), el token de acceso puede haber expirado.
     if (response.status === 401) {
@@ -60,10 +74,9 @@ export async function fetchWithAuth(url, options = {}) {
         if (newAccessToken) {
             // Si el token se refrescó con éxito, reintentar la petición original con el nuevo token.
             options.headers.Authorization = `Bearer ${newAccessToken}`;
-            response = await fetch(`${API_URL}${url}`, options);
+            response = await fetch(fullUrl, options);
         }
     }
 
     return response;
 }
-
