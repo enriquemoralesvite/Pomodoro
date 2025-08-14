@@ -2,14 +2,15 @@
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import icon from 'astro-icon';
+import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
-  publicDir: './public', // ✅ Asegúrate de que esto está definido
+  publicDir: './public',
   vite: {
     plugins: [tailwindcss()],
     resolve: {
       alias: {
-        '@scripts': new URL('./public/scripts', import.meta.url).pathname // ⚠️ Cambiado de '../public/src/scripts' a 'public/scripts'
+        '@scripts': fileURLToPath(new URL('./public/scripts', import.meta.url))
       }
     }
   },
