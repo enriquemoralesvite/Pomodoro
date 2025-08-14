@@ -3,38 +3,25 @@ const API_BASE = 'https://pomodoro-backend-clan.onrender.com/api';
 export async function getStatistics() {
   try {
     const response = await fetch(`${API_BASE}/timer/statistics`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-      },
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
       credentials: 'include'
     });
-
     const json = await response.json().catch(() => ({}));
-    // Unifica: a veces el backend envía { data: [...] }, otras veces directamente [...]
-    const rows = Array.isArray(json?.data) ? json.data : json;
-
-    return { data: rows, success: response.ok };
+    return { data: json, success: response.ok };
   } catch (error) {
     console.error("Error fetching statistics:", error);
-    return { data: [], success: false, error: error.message };
+    return { data: {}, success: false, error: error.message };
   }
 }
 
 export async function getWeeklyStatistics() {
   try {
     const response = await fetch(`${API_BASE}/timer/statistics/weekly`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-      },
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
       credentials: 'include'
     });
-
     const json = await response.json().catch(() => ({}));
     const rows = Array.isArray(json?.data) ? json.data : json;
-
-    // (opcional) quita el console.log que te llenaba la consola
-    // console.log("Weekly stats response:", { status: response.status, ok: response.ok });
-
     return { data: rows, success: response.ok };
   } catch (error) {
     console.error("Error fetching weekly stats:", error);
@@ -42,9 +29,7 @@ export async function getWeeklyStatistics() {
   }
 }
 
-
 export async function getTasks() {
-  const API_BASE = 'https://pomodoro-backend-clan.onrender.com/api';
   try {
     const response = await fetch(`${API_BASE}/tasks`, {
       headers: {
@@ -60,9 +45,7 @@ export async function getTasks() {
   }
 }
 
-
 export async function deleteTask(taskId) {
-  const API_BASE = 'https://pomodoro-backend-clan.onrender.com/api';
   const response = await fetch(`${API_BASE}/tasks/${taskId}`, {
     method: 'DELETE',
     headers: {
@@ -75,7 +58,6 @@ export async function deleteTask(taskId) {
 }
 
 export async function editTask(taskId, updates) {
-  const API_BASE = 'https://pomodoro-backend-clan.onrender.com/api';
   const response = await fetch(`${API_BASE}/tasks/${taskId}`, {
     method: 'PUT',
     headers: {
@@ -89,7 +71,6 @@ export async function editTask(taskId, updates) {
 }
 
 export async function addTask(task) {
-  const API_BASE = 'https://pomodoro-backend-clan.onrender.com/api';
   try {
     const response = await fetch(`${API_BASE}/tasks`, {
       method: 'POST',
