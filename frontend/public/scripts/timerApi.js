@@ -1,4 +1,4 @@
-import { fetchWithAuth } from './apiClient';
+import { fetchWithAuth } from './apiClient.js';
 
 function getDefaultError(error) {
   console.error("Error en la API de temporizador:", error);

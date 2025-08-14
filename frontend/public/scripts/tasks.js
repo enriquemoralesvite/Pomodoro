@@ -1,4 +1,4 @@
-import { deleteTask, editTask } from "./tasksApi";
+import { deleteTask, editTask } from "./tasksApi.js";
 import * as dialog from "./dialog.js";
 
 export function createTask(task) {
