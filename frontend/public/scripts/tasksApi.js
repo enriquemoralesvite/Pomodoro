@@ -39,3 +39,30 @@ export async function getWeeklyStatistics() {
     throw error;
   }
 }
+
+export async function deleteTask(taskId) {
+  const API_BASE = 'https://pomodoro-backend-clan.onrender.com/api';
+  const response = await fetch(`${API_BASE}/tasks/${taskId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  if (!response.ok) throw new Error(`Error ${response.status}`);
+  return await response.json();
+}
+
+export async function editTask(taskId, updates) {
+  const API_BASE = 'https://pomodoro-backend-clan.onrender.com/api';
+  const response = await fetch(`${API_BASE}/tasks/${taskId}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(updates)
+  });
+  if (!response.ok) throw new Error(`Error ${response.status}`);
+  return await response.json();
+}
