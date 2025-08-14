@@ -1,6 +1,5 @@
 import { fetchWithAuth } from "./apiClient";
 
-// Función auxiliar para manejar errores comunes de la API.
 function getDefaultError(error) {
   console.error("Error en la API de tareas:", error);
   return {
@@ -9,13 +8,11 @@ function getDefaultError(error) {
   };
 }
 
-/**
- * Obtiene todas las tareas del usuario.
- * Utiliza fetchWithAuth para asegurar que la petición está autenticada.
- */
 export async function getTasks() {
   try {
-    const response = await fetchWithAuth("/tasks");
+    const response = await fetchWithAuth(
+      "https://pomodoro-backend-clan.onrender.com/api/tasks"
+    );
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(
@@ -28,48 +25,44 @@ export async function getTasks() {
   }
 }
 
-/**
- * Agrega una nueva tarea.
- * @param {object} task - El objeto de la tarea a agregar.
- */
 export async function addTask(task) {
   try {
-    const response = await fetchWithAuth("/tasks", {
-      method: "POST",
-      body: JSON.stringify(task),
-    });
+    const response = await fetchWithAuth(
+      "https://pomodoro-backend-clan.onrender.com/api/tasks",
+      {
+        method: "POST",
+        body: JSON.stringify(task),
+      }
+    );
     return await response.json();
   } catch (error) {
     return getDefaultError(error);
   }
 }
 
-/**
- * Edita una tarea existente.
- * @param {number} id - El ID de la tarea a editar.
- * @param {object} task - Los datos actualizados de la tarea.
- */
 export async function editTask(id, task) {
   try {
-    const response = await fetchWithAuth(`/tasks/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(task),
-    });
+    const response = await fetchWithAuth(
+      `https://pomodoro-backend-clan.onrender.com/api/tasks/${id}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(task),
+      }
+    );
     return await response.json();
   } catch (error) {
     return getDefaultError(error);
   }
 }
 
-/**
- * Elimina una tarea.
- * @param {number} id - El ID de la tarea a eliminar.
- */
 export async function deleteTask(id) {
   try {
-    const response = await fetchWithAuth(`/tasks/${id}`, {
-      method: "DELETE",
-    });
+    const response = await fetchWithAuth(
+      `https://pomodoro-backend-clan.onrender.com/api/tasks/${id}`,
+      {
+        method: "DELETE",
+      }
+    );
     if (response.ok) {
       return { success: true };
     }
@@ -79,12 +72,11 @@ export async function deleteTask(id) {
   }
 }
 
-/**
- * Obtiene las estadísticas de las tareas.
- */
 export async function getStatistics() {
   try {
-    const response = await fetchWithAuth("/timer/statistics");
+    const response = await fetchWithAuth(
+      "https://pomodoro-backend-clan.onrender.com/api/timer/statistics"
+    );
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(
@@ -97,12 +89,12 @@ export async function getStatistics() {
   }
 }
 
-// Función única (se eliminó la declaración duplicada que estaba al final del archivo)
 export async function getWeeklyStatistics() {
   try {
-    const response = await fetchWithAuth("/timer/statistics/weekly");
+    const response = await fetchWithAuth(
+      "https://pomodoro-backend-clan.onrender.com/api/timer/statistics/weekly"
+    );
     
-    // Depuración crucial
     console.log("Respuesta de weekly statistics:", {
       status: response.status,
       ok: response.ok
