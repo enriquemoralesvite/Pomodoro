@@ -97,24 +97,7 @@ export async function getStatistics() {
   }
 }
 
-/**
- * Obtiene las estadísticas de las tareas compeltadas semanales.
- */
-export async function getWeeklyStatistics() {
-  try {
-    const response = await fetchWithAuth("/timer/statistics/weekly");
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `Error al obtener las estadísticas: ${response.status} ${response.statusText} - ${errorText}`
-      );
-    }
-    return await response.json();
-  } catch (error) {
-    return getDefaultError(error);
-  }
-}
-// En tasksApi.js - Agrega este console.log para depuración
+// Función única (se eliminó la declaración duplicada que estaba al final del archivo)
 export async function getWeeklyStatistics() {
   try {
     const response = await fetchWithAuth("/timer/statistics/weekly");
