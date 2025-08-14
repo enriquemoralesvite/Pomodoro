@@ -7,12 +7,16 @@ export async function getStatistics() {
       credentials: 'include'
     });
     const json = await response.json().catch(() => ({}));
-    return { data: json, success: response.ok };
+    // Normaliza: si backend responde { success: true, data: { ... } }
+    // devolvemos directamente el objeto interno para que cliente haga stats.pomodorosCompleted
+    const data = json?.data ?? json;
+    return { data, success: response.ok };
   } catch (error) {
     console.error("Error fetching statistics:", error);
     return { data: {}, success: false, error: error.message };
   }
 }
+
 
 export async function getWeeklyStatistics() {
   try {

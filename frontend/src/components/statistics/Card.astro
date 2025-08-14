@@ -8,6 +8,6 @@ const { title, quantity, icon } = Astro.props;
   class="flex flex-col items-center bg-white/30 p-2 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
 >
   <Icon name={icon} class="text-3xl" />
-  <p>{quantity}</p>
+  <p class="stat-quantity">{quantity}</p>
   <p class="text-center text-sm sm:text-xs md:text-sm text-balance">{title}</p>
 </div>

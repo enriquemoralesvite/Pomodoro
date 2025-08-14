@@ -1,17 +1,13 @@
 ---
 import Card from "./Card.astro";
 
-// Los datos iniciales se muestran como '0' y se llenarán dinámicamente en el cliente.
+// Datos iniciales como "0" que luego se llenarán en cliente
 let statistics = [
   { title: "Pomodoros", quantity: "0", icon: "tomato" },
   { title: "Short Breaks", quantity: "0", icon: "breakCoffee" },
   { title: "Long Breaks", quantity: "0", icon: "pauseCard" },
   { title: "Completed Tasks", quantity: "0", icon: "taskCompleted" },
 ];
-
-// No podemos hacer una llamada fetch autenticada directamente aquí
-// porque el token está en el localStorage del cliente.
-// La obtención de datos debe ocurrir en el lado del cliente.
 ---
 
 <!-- Cards -->
@@ -27,45 +23,47 @@ let statistics = [
 </div>
 
 <script>
-  import { getStatistics } from "../../../public/scripts/tasksApi.js";
+  import { getStatistics } from '@scripts/tasksApi.js';
 
-  // Función para obtener y renderizar las estadísticas desde el backend.
   async function updateStatistics() {
     try {
       const response = await getStatistics();
       if (response && response.success) {
-        const stats = response.data;
+        // Normalizar forma de datos por si vienen anidados en .data.data
+        const payload = response?.data ?? {};
+        const stats = payload?.data ?? payload ?? {};
+
         const container = document.getElementById("stats-cards-container");
 
         const statisticsData = [
           {
             title: "Pomodoros",
-            quantity: stats.pomodorosCompleted,
+            quantity: stats.pomodorosCompleted ?? 0,
             icon: "tomato",
           },
           {
             title: "Short Breaks",
-            quantity: stats.shortBreaks,
+            quantity: stats.shortBreaks ?? 0,
             icon: "breakCoffee",
           },
           {
             title: "Long Breaks",
-            quantity: stats.longBreaks,
+            quantity: stats.longBreaks ?? 0,
             icon: "pauseCard",
           },
           {
             title: "Completed Tasks",
-            quantity: stats.tasksCompleted,
+            quantity: stats.tasksCompleted ?? 0,
             icon: "taskCompleted",
           },
         ];
 
-        // Actualiza las tarjetas existentes para evitar un redibujado completo.
+        // Actualiza cantidades en las tarjetas existentes
         const cards = container.children;
         statisticsData.forEach((stat, index) => {
           const card = cards[index];
           if (card) {
-            const quantityElement = card.querySelector("p:nth-of-type(1)");
+            const quantityElement = card.querySelector(".stat-quantity");
             if (quantityElement) {
               quantityElement.textContent = stat.quantity;
             }
@@ -82,10 +80,13 @@ let statistics = [
     }
   }
 
-  // Carga inicial de estadísticas cuando la página está lista.
-  document.addEventListener("DOMContentLoaded", updateStatistics);
+  // Ejecutar inmediatamente si DOM ya está listo
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updateStatistics);
+  } else {
+    updateStatistics();
+  }
 
-  // Escucha el evento personalizado para forzar la actualización cuando otra parte de la app
-  // (como el temporizador o la lista de tareas) realiza un cambio.
+  // Escuchar actualizaciones manuales
   document.addEventListener("stats-updated", updateStatistics);
 </script>
