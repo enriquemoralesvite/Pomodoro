@@ -14,8 +14,8 @@ router.get("/stats", getStats); // GET /api/timer/stats
 router.get("/config", getTimerConfig); // GET /api/timer/config
 
 // Expone las estadísticas agregadas (pomodoros, descansos, tareas) para el usuario autenticado.
-router.get("/timer/statistics", authMiddleware, getAggregatedStats);
+router.get("/statistics", authMiddleware, getAggregatedStats);
 
-router.get("/timer/statistics/weekly", authMiddleware, getWeeklyStatistics);
+router.get("/statistics/weekly", authMiddleware, getWeeklyStatistics);
 
 module.exports = router;
