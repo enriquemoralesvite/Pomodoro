@@ -8,12 +8,15 @@ export async function getStatistics() {
       },
       credentials: 'include'
     });
-    
-    if (!response.ok) throw new Error(`Error ${response.status}`);
-    return await response.json();
+
+    const json = await response.json().catch(() => ({}));
+    // Unifica: a veces el backend envía { data: [...] }, otras veces directamente [...]
+    const rows = Array.isArray(json?.data) ? json.data : json;
+
+    return { data: rows, success: response.ok };
   } catch (error) {
     console.error("Error fetching statistics:", error);
-    throw error;
+    return { data: [], success: false, error: error.message };
   }
 }
 
@@ -26,19 +29,19 @@ export async function getWeeklyStatistics() {
       credentials: 'include'
     });
 
-    const data = {
-      status: response.status,
-      ok: response.ok,
-      data: await response.json()
-    };
-    
-    console.log("Weekly stats response:", data);
-    return data;
+    const json = await response.json().catch(() => ({}));
+    const rows = Array.isArray(json?.data) ? json.data : json;
+
+    // (opcional) quita el console.log que te llenaba la consola
+    // console.log("Weekly stats response:", { status: response.status, ok: response.ok });
+
+    return { data: rows, success: response.ok };
   } catch (error) {
     console.error("Error fetching weekly stats:", error);
-    throw error;
+    return { data: [], success: false, error: error.message };
   }
 }
+
 
 export async function getTasks() {
   const API_BASE = 'https://pomodoro-backend-clan.onrender.com/api';
