@@ -8,7 +8,7 @@ export default defineConfig({
     plugins: [tailwindcss()],
     resolve: {
       alias: {
-        '@scripts': new URL('./src/scripts', import.meta.url).pathname // ✅ Añade esto
+        '@scripts': new URL('./../public/src/scripts', import.meta.url).pathname // ✅ Añade esto
       }
     }
   },
